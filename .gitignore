@@ -1,0 +1,18 @@
+# Backend
+server/target/
+server/.idea/
+server/*.iml
+*.class
+
+# Frontend
+client/node_modules/
+client/dist/
+
+# Environment
+.env
+*.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
