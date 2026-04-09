@@ -1,34 +1,43 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// Import pages as you build them
-// import LoginPage from '../pages/auth/LoginPage';
-// import DashboardPage from '../pages/DashboardPage';
+import LoginPage from '../pages/auth/LoginPage';
+import RegisterPage from '../pages/auth/RegisterPage';
+import DashboardPage from '../pages/DashboardPage';
+import ProfilePage from '../pages/ProfilePage';
+import TargetsPage from '../pages/TargetsPage';
+import ProtectedRoute from '../components/auth/ProtectedRoute';
+import MainLayout from '../layouts/MainLayout';
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth */}
-        <Route path="/login" element={<div>Login Page - Coming Soon</div>} />
-        <Route path="/register" element={<div>Register Page - Coming Soon</div>} />
+        {/* Public */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-        {/* Main App */}
-        <Route path="/" element={<div>Dashboard - Coming Soon</div>} />
-        <Route path="/targets" element={<div>Targets - Coming Soon</div>} />
-        <Route path="/tasks" element={<div>Tasks - Coming Soon</div>} />
-        <Route path="/notes" element={<div>Notes - Coming Soon</div>} />
-        <Route path="/skills" element={<div>Skills - Coming Soon</div>} />
-        <Route path="/exams" element={<div>Exams - Coming Soon</div>} />
-        <Route path="/planner" element={<div>Planner - Coming Soon</div>} />
-        <Route path="/pomodoro" element={<div>Pomodoro - Coming Soon</div>} />
-        <Route path="/jobs" element={<div>Jobs - Coming Soon</div>} />
-        <Route path="/resources" element={<div>Resources - Coming Soon</div>} />
-        <Route path="/profile" element={<div>Profile - Coming Soon</div>} />
-        <Route path="/settings" element={<div>Settings - Coming Soon</div>} />
-        <Route path="/pricing" element={<div>Pricing - Coming Soon</div>} />
+        {/* Protected with Layout */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <MainLayout><DashboardPage /></MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/targets" element={
+          <ProtectedRoute>
+            <MainLayout><TargetsPage /></MainLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <MainLayout><ProfilePage /></MainLayout>
+          </ProtectedRoute>
+        } />
 
         {/* 404 */}
-        <Route path="*" element={<div>404 - Page Not Found</div>} />
+        <Route path="*" element={
+          <div className="min-h-screen flex items-center justify-center bg-[#0f0f1a]">
+            <h1 className="text-3xl font-bold text-gray-500">404 - Page Not Found</h1>
+          </div>
+        } />
       </Routes>
     </BrowserRouter>
   );
