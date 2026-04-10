@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradientMove 10s ease infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes auroraDrift {
+  0% { transform: translate3d(0, -10%, 0) rotate(12deg) scaleY(1); }
+  50% { transform: translate3d(10%, 8%, 0) rotate(6deg) scaleY(1.08); }
+  100% { transform: translate3d(0, -10%, 0) rotate(12deg) scaleY(1); }
+}
+
+.animate-aurora {
+  animation: auroraDrift 14s ease-in-out infinite;
+}
+
+.animate-aurora-delayed {
+  animation: auroraDrift 17s ease-in-out infinite reverse;
+}
+
+@keyframes orbitSlow {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.04); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.animate-orbit-slow {
+  animation: orbitSlow 26s linear infinite;
+}
+
+.animate-orbit-reverse {
+  animation: orbitSlow 18s linear infinite reverse;
+}

@@ -1,7 +1,7 @@
 // src/main/java/com/studentos/server/security/UserPrincipal.java
 package com.studentos.server.security;
 
-import com.studentos.server.model.User;
+import com.studentos.server.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

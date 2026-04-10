@@ -57,17 +57,17 @@ const TargetCard = ({ target, onRefresh }) => {
     'from-blue-600 to-blue-500';
 
   return (
-    <div className={`bg-[#1e1e35] rounded-2xl p-5 border-2 transition-all hover:border-[#3a3a55]
+    <div className={`rounded-[28px] border p-5 transition-all backdrop-blur-xl hover:-translate-y-1
       ${target.isFocused
-        ? 'border-blue-500 shadow-lg shadow-blue-500/10'
-        : 'border-[#2a2a45]'}`}
+        ? 'border-cyan-200/30 bg-[linear-gradient(180deg,rgba(121,224,255,0.12),rgba(255,255,255,0.05))] shadow-[0_12px_30px_rgba(123,226,255,0.08)]'
+        : 'border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.04))]'}`}
     >
       {/* Top Row: Type badge + Status badge */}
       <div className="flex items-center justify-between mb-3">
-        <span className={`px-2.5 py-1 text-xs font-bold rounded-lg ${type.color}`}>
+        <span className={`px-3 py-1 text-xs font-bold rounded-xl ${type.color}`}>
           {type.label}
         </span>
-        <span className={`px-2.5 py-1 text-xs font-bold rounded-lg ${status.color}`}>
+        <span className={`px-3 py-1 text-xs font-bold rounded-xl ${status.color}`}>
           {status.label}
         </span>
       </div>
@@ -75,16 +75,16 @@ const TargetCard = ({ target, onRefresh }) => {
       {/* Title */}
       <h3 className="text-white text-lg font-bold mb-1">{target.title}</h3>
       {target.description && (
-        <p className="text-gray-500 text-sm mb-4 line-clamp-2">{target.description}</p>
+        <p className="text-slate-400 text-sm mb-4 line-clamp-2">{target.description}</p>
       )}
 
       {/* Progress */}
       <div className="mb-4">
         <div className="flex justify-between text-sm mb-1.5">
-          <span className="text-gray-400">Progress</span>
+          <span className="text-slate-400">Progress</span>
           <span className="text-white font-semibold">{target.progressPercentage}%</span>
         </div>
-        <div className="w-full bg-[#2a2a45] rounded-full h-2">
+        <div className="w-full bg-white/8 rounded-full h-2">
           <div
             className={`bg-gradient-to-r ${progressColor} h-2 rounded-full transition-all`}
             style={{ width: `${target.progressPercentage}%` }}
@@ -94,12 +94,12 @@ const TargetCard = ({ target, onRefresh }) => {
 
       {/* Deadline */}
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-gray-500 text-sm">📅</span>
+        <span className="text-slate-500 text-sm">📅</span>
         {target.deadline ? (
           <span className={`text-sm font-medium
             ${daysLeft <= 0 ? 'text-red-400' :
               daysLeft <= 7 ? 'text-orange-400' :
-              'text-gray-400'}`}>
+              'text-slate-400'}`}>
             {target.deadline}
             {daysLeft !== null && (
               <span className="ml-2 text-xs">
@@ -108,7 +108,7 @@ const TargetCard = ({ target, onRefresh }) => {
             )}
           </span>
         ) : (
-          <span className="text-gray-600 text-sm">No deadline</span>
+          <span className="text-slate-500 text-sm">No deadline</span>
         )}
       </div>
 
@@ -116,16 +116,16 @@ const TargetCard = ({ target, onRefresh }) => {
       <div className="flex gap-2">
         <button
           onClick={handleFocus}
-          className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition
+          className={`flex-1 py-2.5 text-sm font-semibold rounded-2xl transition
             ${target.isFocused
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-[#252545] text-gray-400 hover:text-white hover:bg-[#2a2a55]'}`}
+              ? 'bg-cyan-300 text-slate-950 hover:brightness-105'
+              : 'bg-white/8 text-slate-300 hover:text-white hover:bg-white/12'}`}
         >
           {target.isFocused ? '🔵 Focused' : '🎯 Focus'}
         </button>
         <button
           onClick={handleDelete}
-          className="px-4 py-2.5 text-sm bg-[#252545] text-gray-400 rounded-xl hover:bg-red-500/20 hover:text-red-400 transition"
+          className="px-4 py-2.5 text-sm bg-white/8 text-slate-400 rounded-2xl hover:bg-red-500/20 hover:text-red-300 transition"
         >
           🗑️
         </button>

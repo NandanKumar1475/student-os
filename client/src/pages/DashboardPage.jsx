@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getAllTargets } from '../api/targetApi';
+import { ArrowRight, BriefcaseBusiness, Clock3, Flame, Goal, TrendingUp } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -29,98 +30,128 @@ const DashboardPage = () => {
     ? Math.ceil((new Date(focusedTarget.deadline) - new Date()) / (1000 * 60 * 60 * 24))
     : null;
 
+  const weeklyData = [
+    { day: 'Mon', hours: 6 },
+    { day: 'Tue', hours: 4.5 },
+    { day: 'Wed', hours: 7 },
+    { day: 'Thu', hours: 5 },
+    { day: 'Fri', hours: 7.5 },
+    { day: 'Sat', hours: 3.5 },
+    { day: 'Sun', hours: 4 },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">
-          Welcome back, {user?.name?.split(' ')[0]}! 👋
-        </h1>
-        <p className="text-gray-500 mt-1">Here's what's happening with your studies today.</p>
-      </div>
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_0.85fr]">
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(121,224,255,0.14),rgba(255,190,125,0.08),rgba(255,255,255,0.04))] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+          <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/60">Dashboard overview</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-white">
+            Welcome back, {user?.name?.split(' ')[0]}.
+          </h1>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300">
+            This space is designed to feel premium, but stay simple. Your top priorities,
+            deadlines, and study momentum are visible at a glance.
+          </p>
 
-      {/* Top Cards Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Active Target Card */}
-        <div className="lg:col-span-6 bg-[#1e1e35] rounded-2xl p-6 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></span>
-            <span className="text-gray-400 text-sm font-semibold">Active Target</span>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-[24px] border border-white/10 bg-slate-950/30 p-5">
+              <div className="flex items-center gap-2 text-orange-200">
+                <Flame size={18} />
+                <span className="text-sm font-medium">Daily streak</span>
+              </div>
+              <p className="mt-3 text-4xl font-black text-white">12</p>
+              <p className="mt-1 text-sm text-slate-400">Stay consistent today</p>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-slate-950/30 p-5">
+              <div className="flex items-center gap-2 text-emerald-200">
+                <TrendingUp size={18} />
+                <span className="text-sm font-medium">Weekly XP</span>
+              </div>
+              <p className="mt-3 text-4xl font-black text-white">+120</p>
+              <p className="mt-1 text-sm text-slate-400">More than last week</p>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-slate-950/30 p-5">
+              <div className="flex items-center gap-2 text-cyan-200">
+                <Goal size={18} />
+                <span className="text-sm font-medium">Active targets</span>
+              </div>
+              <p className="mt-3 text-4xl font-black text-white">{activeTargets.length}</p>
+              <p className="mt-1 text-sm text-slate-400">Goals in motion</p>
+            </div>
           </div>
+        </div>
+
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.92),rgba(7,17,29,0.78))] p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/55">Focused target</p>
+              <h2 className="mt-2 text-2xl font-bold text-white">
+                {focusedTarget ? focusedTarget.title : 'No target selected'}
+              </h2>
+            </div>
+            <span className="rounded-full border border-emerald-300/15 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
+              Live
+            </span>
+          </div>
+
           {focusedTarget ? (
             <>
-              <h2 className="text-white text-xl font-bold mb-2">{focusedTarget.title}</h2>
-              <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                <span>Progress: {focusedTarget.progressPercentage}%</span>
-                {daysLeft !== null && (
-                  <span className="flex items-center gap-1">
-                    📅 {daysLeft > 0 ? `${daysLeft} days left` : 'Overdue!'}
-                  </span>
-                )}
+              <div className="mt-5 flex items-center justify-between text-sm text-slate-300">
+                <span>Progress</span>
+                <span>{focusedTarget.progressPercentage}%</span>
               </div>
-              <div className="w-full bg-[#2a2a45] rounded-full h-2.5">
+              <div className="mt-2 h-3 overflow-hidden rounded-full bg-white/8">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2.5 rounded-full transition-all"
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)]"
                   style={{ width: `${focusedTarget.progressPercentage}%` }}
                 />
               </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Deadline</p>
+                  <p className="mt-2 text-lg font-semibold text-white">{focusedTarget.deadline || 'Not set'}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Time left</p>
+                  <p className="mt-2 text-lg font-semibold text-white">
+                    {daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} days` : 'Needs attention') : 'No timeline'}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
-            <>
-              <h2 className="text-white text-lg font-semibold mb-1">No focused target</h2>
-              <p className="text-gray-500 text-sm">Go to Targets and focus on one to see it here.</p>
-            </>
+            <p className="mt-6 text-sm leading-6 text-slate-400">
+              Pick a focused target from the Targets page and it will become your main dashboard anchor.
+            </p>
           )}
-        </div>
-
-        {/* Daily Streak */}
-        <div className="lg:col-span-3 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-white/70 text-lg">🔥</span>
-            <span className="text-white/70 text-sm font-semibold">Daily Streak</span>
-          </div>
-          <p className="text-white text-4xl font-extrabold">12</p>
-          <p className="text-white/60 text-sm mt-1">Keep it going! 💪</p>
-        </div>
-
-        {/* Total XP */}
-        <div className="lg:col-span-3 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-white/70 text-lg">🏆</span>
-            <span className="text-white/70 text-sm font-semibold">Total XP</span>
-          </div>
-          <p className="text-white text-4xl font-extrabold">2,450</p>
-          <p className="text-white/60 text-sm mt-1">+120 this week</p>
         </div>
       </div>
 
-      {/* Second Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Today's Tasks */}
-        <div className="lg:col-span-7 bg-[#1e1e35] rounded-2xl p-6 border border-[#2a2a45]">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">✓</span>
-              <h3 className="text-white font-bold text-lg">Today's Tasks</h3>
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.9),rgba(7,17,29,0.76))] p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/55">Today</p>
+              <h3 className="mt-2 text-2xl font-bold text-white">Clear next actions</h3>
             </div>
-            <span className="text-gray-500 text-sm">4 tasks</span>
+            <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-sm text-slate-300">4 tasks</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="mt-6 space-y-3">
             {[
               { title: 'Complete DSA Assignment', done: false },
               { title: 'Review React Hooks', done: true },
               { title: 'Mock Interview Prep', done: false },
               { title: 'Read DBMS Chapter 5', done: false },
             ].map((task, i) => (
-              <div key={i} className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-[#252545] transition">
-                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition
+              <div key={i} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/5 px-4 py-3 transition hover:bg-white/8">
+                <div className={`flex h-5 w-5 items-center justify-center rounded-md border-2 transition
                   ${task.done
-                    ? 'bg-blue-600 border-blue-600'
-                    : 'border-gray-600 hover:border-blue-400'}`}>
+                    ? 'border-cyan-300 bg-cyan-300'
+                    : 'border-slate-500 hover:border-cyan-300'}`}>
                   {task.done && <span className="text-white text-xs">✓</span>}
                 </div>
-                <span className={`text-sm ${task.done ? 'line-through text-gray-600' : 'text-gray-300'}`}>
+                <span className={`text-sm ${task.done ? 'line-through text-slate-500' : 'text-slate-200'}`}>
                   {task.title}
                 </span>
               </div>
@@ -128,32 +159,31 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Upcoming Deadlines */}
-        <div className="lg:col-span-5 bg-[#1e1e35] rounded-2xl p-6 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-orange-400">⏰</span>
-            <h3 className="text-white font-bold text-lg">Upcoming Deadlines</h3>
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.9),rgba(7,17,29,0.76))] p-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <Clock3 size={18} className="text-orange-200" />
+            <h3 className="text-xl font-bold text-white">Upcoming deadlines</h3>
           </div>
 
-          <div className="space-y-4">
+          <div className="mt-5 space-y-4">
             {activeTargets.length > 0 ? (
               activeTargets.slice(0, 4).map((target) => {
                 const days = target.deadline
                   ? Math.ceil((new Date(target.deadline) - new Date()) / (1000 * 60 * 60 * 24))
                   : null;
                 return (
-                  <div key={target.id} className="flex items-center justify-between">
+                  <div key={target.id} className="flex items-center justify-between rounded-2xl border border-white/8 bg-white/5 p-4">
                     <div>
-                      <p className="text-gray-200 text-sm font-medium">{target.title}</p>
-                      <p className="text-gray-600 text-xs mt-0.5">
+                      <p className="text-sm font-medium text-slate-100">{target.title}</p>
+                      <p className="text-xs text-slate-500">
                         {target.deadline || 'No deadline'}
                       </p>
                     </div>
                     {days !== null && (
-                      <span className={`px-2.5 py-1 text-xs font-bold rounded-lg
-                        ${days <= 7 ? 'bg-red-500/20 text-red-400' :
-                          days <= 14 ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-blue-500/20 text-blue-400'}`}>
+                      <span className={`rounded-xl px-3 py-1 text-xs font-bold
+                        ${days <= 7 ? 'bg-red-500/15 text-red-300' :
+                          days <= 14 ? 'bg-yellow-500/15 text-yellow-300' :
+                          'bg-cyan-500/15 text-cyan-200'}`}>
                         {days}d
                       </span>
                     )}
@@ -161,64 +191,55 @@ const DashboardPage = () => {
                 );
               })
             ) : (
-              <p className="text-gray-600 text-sm">No active targets yet.</p>
+              <p className="text-sm text-slate-500">No active targets yet.</p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Third Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Weekly Study Hours (placeholder chart) */}
-        <div className="lg:col-span-7 bg-[#1e1e35] rounded-2xl p-6 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-green-400">📈</span>
-            <h3 className="text-white font-bold text-lg">Weekly Study Hours</h3>
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.9),rgba(7,17,29,0.76))] p-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={18} className="text-emerald-200" />
+            <h3 className="text-xl font-bold text-white">Weekly study hours</h3>
           </div>
 
-          {/* Simple bar chart */}
-          <div className="flex items-end justify-between gap-3 h-40 px-2">
-            {[
-              { day: 'Mon', hours: 6 },
-              { day: 'Tue', hours: 4.5 },
-              { day: 'Wed', hours: 7 },
-              { day: 'Thu', hours: 5 },
-              { day: 'Fri', hours: 7.5 },
-              { day: 'Sat', hours: 3.5 },
-              { day: 'Sun', hours: 4 },
-            ].map((d, i) => (
+          <div className="mt-8 flex h-48 items-end justify-between gap-3">
+            {weeklyData.map((d, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full relative" style={{ height: '120px' }}>
+                <div className="relative w-full rounded-t-2xl bg-white/5" style={{ height: '148px' }}>
                   <div
-                    className="absolute bottom-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-lg transition-all hover:from-blue-500 hover:to-blue-300"
+                    className="absolute bottom-0 w-full rounded-2xl bg-[linear-gradient(180deg,rgba(121,224,255,0.95),rgba(255,191,125,0.65))]"
                     style={{ height: `${(d.hours / 8) * 100}%` }}
                   />
                 </div>
-                <span className="text-gray-500 text-xs">{d.day}</span>
+                <span className="text-xs text-slate-500">{d.day}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Job Alerts */}
-        <div className="lg:col-span-5 bg-[#1e1e35] rounded-2xl p-6 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-blue-400">💼</span>
-            <h3 className="text-white font-bold text-lg">Job Alerts</h3>
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.9),rgba(7,17,29,0.76))] p-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2">
+            <BriefcaseBusiness size={18} className="text-cyan-200" />
+            <h3 className="text-xl font-bold text-white">Job alerts</h3>
           </div>
 
-          <div className="space-y-4">
+          <div className="mt-5 space-y-4">
             {[
               { title: 'Frontend Developer', company: 'Google', location: 'Remote', match: '92%' },
               { title: 'Software Engineer', company: 'Microsoft', location: 'Seattle', match: '88%' },
               { title: 'Full Stack Developer', company: 'Amazon', location: 'Austin', match: '85%' },
             ].map((job, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-[#252545] hover:bg-[#2a2a55] transition">
+              <div key={i} className="flex items-center justify-between rounded-2xl border border-white/8 bg-white/5 p-4 transition hover:bg-white/8">
                 <div>
-                  <p className="text-gray-200 text-sm font-medium">{job.title}</p>
-                  <p className="text-gray-500 text-xs">{job.company} · {job.location}</p>
+                  <p className="text-sm font-medium text-slate-100">{job.title}</p>
+                  <p className="text-xs text-slate-500">{job.company} · {job.location}</p>
                 </div>
-                <span className="text-green-400 text-sm font-bold">{job.match}</span>
+                <span className="flex items-center gap-1 text-sm font-bold text-emerald-300">
+                  {job.match}
+                  <ArrowRight size={14} />
+                </span>
               </div>
             ))}
           </div>

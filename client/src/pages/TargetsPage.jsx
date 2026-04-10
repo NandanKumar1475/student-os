@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAllTargets } from '../api/targetApi';
+import { Clock3, Focus, Goal, Plus, TrendingUp } from 'lucide-react';
 import TargetCard from '../components/targets/TargetCard';
 import CreateTargetModal from '../components/targets/CreateTargetModal';
 
@@ -49,91 +50,91 @@ const TargetsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Your Targets 🎯</h1>
-          <p className="text-gray-500 text-sm mt-1">Set goals and track your progress</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Goals workspace</p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Targets that stay visible.</h1>
+          <p className="mt-2 text-sm text-slate-400">A clearer, more premium space for planning what matters next.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-[#1e1e35] rounded-xl border border-[#2a2a45]">
-            <span className="text-gray-400 text-sm">Focus Mode</span>
-            <div className="w-10 h-5 bg-[#2a2a45] rounded-full relative cursor-pointer">
-              <div className="w-4 h-4 bg-gray-500 rounded-full absolute top-0.5 left-0.5"></div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-300">
+            <Focus size={16} className="text-cyan-200" />
+            Focus mode
+            <div className="relative h-6 w-11 rounded-full bg-white/10">
+              <div className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(123,226,255,0.5)]" />
             </div>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+            className="flex items-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)] px-5 py-3 font-semibold text-slate-950 transition hover:brightness-105"
           >
-            + Create Target
+            <Plus size={18} />
+            Create Target
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#1e1e35] rounded-2xl p-5 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-green-400">◎</span>
-            <span className="text-gray-500 text-sm">Total Targets</span>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-[28px] border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-emerald-200">
+            <Goal size={18} />
+            <span className="text-sm">Total targets</span>
           </div>
-          <p className="text-white text-3xl font-extrabold">{totalCount}</p>
+          <p className="mt-3 text-4xl font-black text-white">{totalCount}</p>
         </div>
-        <div className="bg-[#1e1e35] rounded-2xl p-5 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-blue-400">📈</span>
-            <span className="text-gray-500 text-sm">In Progress</span>
+        <div className="rounded-[28px] border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-cyan-200">
+            <TrendingUp size={18} />
+            <span className="text-sm">In progress</span>
           </div>
-          <p className="text-white text-3xl font-extrabold">{activeCount}</p>
+          <p className="mt-3 text-4xl font-black text-white">{activeCount}</p>
         </div>
-        <div className="bg-[#1e1e35] rounded-2xl p-5 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-orange-400">📅</span>
-            <span className="text-gray-500 text-sm">Due This Week</span>
+        <div className="rounded-[28px] border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-orange-200">
+            <Clock3 size={18} />
+            <span className="text-sm">Due this week</span>
           </div>
-          <p className="text-white text-3xl font-extrabold">{dueThisWeek}</p>
+          <p className="mt-3 text-4xl font-black text-white">{dueThisWeek}</p>
         </div>
-        <div className="bg-[#1e1e35] rounded-2xl p-5 border border-[#2a2a45]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-yellow-400">⭐</span>
-            <span className="text-gray-500 text-sm">Avg Progress</span>
+        <div className="rounded-[28px] border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-yellow-200">
+            <TrendingUp size={18} />
+            <span className="text-sm">Avg progress</span>
           </div>
-          <p className="text-white text-3xl font-extrabold">{avgProgress}%</p>
+          <p className="mt-3 text-4xl font-black text-white">{avgProgress}%</p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {filters.map((f) => (
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
-            className={`px-4 py-2 text-sm font-medium rounded-xl transition
+            className={`rounded-2xl px-4 py-2.5 text-sm font-medium transition
               ${filter === f.value
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                : 'bg-[#1e1e35] text-gray-400 hover:text-white hover:bg-[#252545] border border-[#2a2a45]'}`}
+                ? 'border border-cyan-200/20 bg-cyan-300/15 text-white'
+                : 'border border-white/10 bg-white/6 text-slate-400 hover:bg-white/10 hover:text-white'}`}
           >
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Target Grid */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+          <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-cyan-300"></div>
         </div>
       ) : targets.length === 0 ? (
-        <div className="text-center py-20">
+        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.88),rgba(7,17,29,0.72))] py-20 text-center backdrop-blur-xl">
           <p className="text-5xl mb-4">🎯</p>
-          <h3 className="text-xl font-bold text-gray-300 mb-2">No targets yet</h3>
-          <p className="text-gray-600 mb-6">Create your first target to start tracking your prep!</p>
+          <h3 className="text-xl font-bold text-slate-100 mb-2">No targets yet</h3>
+          <p className="text-slate-500 mb-6">Create your first target and start building visible momentum.</p>
           <button
             onClick={() => setShowModal(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+            className="rounded-2xl bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)] px-6 py-3 font-semibold text-slate-950 transition hover:brightness-105"
           >
-            + Create Target
+            Create Target
           </button>
         </div>
       ) : (
