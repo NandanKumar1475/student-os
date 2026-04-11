@@ -1,9 +1,11 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Goal,
   CheckSquare,
   FileText,
+  Flame,
   BarChart3,
   BriefcaseBusiness,
   Library,
@@ -19,6 +21,7 @@ const navItems = [
   { path: '/targets', label: 'Targets', icon: Goal },
   { path: '/tasks', label: 'Tasks', icon: CheckSquare },
   { path: '/notes', label: 'Notes', icon: FileText },
+  { path: '/streaks', label: 'Streaks', icon: Flame },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/jobs', label: 'Jobs', icon: BriefcaseBusiness },
   { path: '/resources', label: 'Resources', icon: Library },
@@ -27,6 +30,8 @@ const navItems = [
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const MotionDiv = motion.div;
 
   const handleLogout = () => {
     logout();
@@ -37,10 +42,12 @@ const MainLayout = ({ children }) => {
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase()
     : '?';
 
+  const pageContent = children || <Outlet />;
+
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-[#07111f] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(81,204,255,0.18),transparent_28%),radial-gradient(circle_at_85%_18%,rgba(255,182,120,0.16),transparent_20%),linear-gradient(135deg,#05111e_0%,#0a1627_48%,#03070f_100%)]" />
-      <div className="absolute inset-0 opacity-40 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(circle_at_center,black,transparent_80%)]" />
+      <div className="absolute inset-0 opacity-40 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[72px_72px] mask-[radial-gradient(circle_at_center,black,transparent_80%)]" />
 
       <aside className="relative z-10 hidden w-72 shrink-0 flex-col border-r border-white/10 bg-[linear-gradient(180deg,rgba(7,18,31,0.96),rgba(6,14,24,0.9))] px-5 py-6 backdrop-blur-xl lg:flex">
         <div className="rounded-[28px] border border-white/10 bg-white/6 p-5">
@@ -145,7 +152,18 @@ const MainLayout = ({ children }) => {
         </header>
 
         <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-          {children}
+          <AnimatePresence mode="wait" initial={false}>
+            <MotionDiv
+              key={location.pathname}
+              initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -14, filter: 'blur(8px)' }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full"
+            >
+              {pageContent}
+            </MotionDiv>
+          </AnimatePresence>
         </main>
       </div>
     </div>

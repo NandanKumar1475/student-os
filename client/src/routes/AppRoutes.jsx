@@ -4,7 +4,9 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProfilePage from '../pages/ProfilePage';
 import TargetsPage from '../pages/TargetsPage';
-import Tasks from '../pages/Tasks'; // ✅ fixed
+import Tasks from '../pages/Tasks';
+import Notes from '../pages/Notes';
+import Streaks from '../pages/Streaks';
 
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
@@ -18,31 +20,19 @@ const AppRoutes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Protected with Layout */}
-        <Route path="/" element={
+        {/* Protected with shared animated layout */}
+        <Route element={
           <ProtectedRoute>
-            <MainLayout><DashboardPage /></MainLayout>
+            <MainLayout />
           </ProtectedRoute>
-        } />
-
-        <Route path="/targets" element={
-          <ProtectedRoute>
-            <MainLayout><TargetsPage /></MainLayout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <MainLayout><ProfilePage /></MainLayout>
-          </ProtectedRoute>
-        } />
-
-        {/* FIXED TASKS ROUTE */}
-        <Route path="/tasks" element={
-          <ProtectedRoute>
-            <MainLayout><Tasks /></MainLayout>
-          </ProtectedRoute>
-        } />
+        }>
+          <Route index element={<DashboardPage />} />
+          <Route path="/targets" element={<TargetsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/streaks" element={<Streaks />} />
+        </Route>
 
         {/* 404 */}
         <Route path="*" element={

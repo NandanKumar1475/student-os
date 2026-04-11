@@ -1,16 +1,16 @@
-// client/src/components/tasks/AddTaskModal.jsx
-
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { taskService } from '../../services/taskService';
 import { targetService } from '../../services/targetService';
 import toast from 'react-hot-toast';
 
 export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
-
+    const MotionDiv = motion.div;
     const [targets, setTargets] = useState([]);
 
-    // ✅ Initial form
+    // ✅ FORM INITIAL STATE
     const initialForm = {
         title: '',
         description: '',
@@ -20,43 +20,43 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
         targetId: '',
     };
 
-    // ✅ Initialize form WITHOUT useEffect (fix ESLint issue)
+    // ✅ HANDLE EDIT / CREATE MODE
     const [form, setForm] = useState(() =>
         editTask
             ? {
-                title: editTask.title || '',
-                description: editTask.description || '',
-                priority: editTask.priority || 'MEDIUM',
-                dueDate: editTask.dueDate || '',
-                dueTime: editTask.dueTime || '',
-                targetId: editTask.targetId || '',
-            }
+                  title: editTask.title || '',
+                  description: editTask.description || '',
+                  priority: editTask.priority || 'MEDIUM',
+                  dueDate: editTask.dueDate || '',
+                  dueTime: editTask.dueTime || '',
+                  targetId: editTask.targetId || '',
+              }
             : initialForm
     );
 
-    // ✅ Fetch targets (API side-effect → valid)
+    // ✅ FETCH TARGETS
     useEffect(() => {
         const fetchTargets = async () => {
             try {
                 const res = await targetService.getAll();
                 setTargets(res.data);
             } catch {
-                toast.error("Failed to load targets");
+                toast.error('Failed to load targets');
             }
         };
 
         fetchTargets();
     }, []);
 
-    // ❌ NO setForm inside useEffect → ESLint issue solved
-
+    // ✅ INPUT HANDLER
     const handleChange = (field, value) => {
         setForm(prev => ({
             ...prev,
-            [field]: value
+            [field]: value,
         }));
     };
 
+    // ✅ FINAL SUBMIT (CREATE + EDIT FIXED)
     const handleSubmit = async () => {
         if (!form.title.trim()) {
             return toast.error('Title is required');
@@ -69,31 +69,53 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
                 dueTime: form.dueTime || null,
             };
 
+            // 🔥 EDIT TASK
             if (editTask) {
-                await taskService.update(editTask.id, payload);
+                const res = await taskService.update(editTask.id, payload);
+
                 toast.success('Task updated!');
-            } else {
-                await taskService.create(payload);
-                toast.success('Task created!');
+
+                // send updated task to parent
+                onTaskAdded(res.data, true);
             }
 
-            onTaskAdded();
+            // 🔥 CREATE TASK
+            else {
+                const res = await taskService.create(payload);
+
+                toast.success('Task created!');
+
+                // send new task to parent
+                onTaskAdded(res.data, false);
+            }
+
             onClose();
 
-        } catch {
+        } catch (err) {
+            console.error(err);
             toast.error('Something went wrong');
         }
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-
-            <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-
-                {/* Header */}
+    const modalContent = (
+        <MotionDiv
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <MotionDiv
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="w-full max-w-md mx-4 rounded-2xl bg-gray-900 p-6 shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* HEADER */}
                 <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-white font-bold text-xl">
-                        {editTask ? 'Edit Task' : 'Add New Task'}
+                    <h2 className="text-white text-xl font-bold">
+                        {editTask ? 'Edit Task' : 'Add Task'}
                     </h2>
 
                     <button onClick={onClose} className="text-gray-400 hover:text-white">
@@ -103,109 +125,85 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
 
                 <div className="space-y-4">
 
-                    {/* Title */}
-                    <div>
-                        <label className="text-gray-400 text-sm mb-1 block">Title *</label>
+                    {/* TITLE */}
+                    <input
+                        type="text"
+                        placeholder="Task title..."
+                        value={form.title}
+                        onChange={e => handleChange('title', e.target.value)}
+                        className="w-full p-2 rounded-lg bg-gray-800 text-white"
+                    />
+
+                    {/* DESCRIPTION */}
+                    <textarea
+                        placeholder="Description..."
+                        value={form.description}
+                        onChange={e => handleChange('description', e.target.value)}
+                        className="w-full p-2 rounded-lg bg-gray-800 text-white"
+                    />
+
+                    {/* PRIORITY */}
+                    <select
+                        value={form.priority}
+                        onChange={e => handleChange('priority', e.target.value)}
+                        className="w-full p-2 rounded-lg bg-gray-800 text-white"
+                    >
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+
+                    {/* TARGET */}
+                    <select
+                        value={form.targetId}
+                        onChange={e => handleChange('targetId', e.target.value)}
+                        className="w-full p-2 rounded-lg bg-gray-800 text-white"
+                    >
+                        <option value="">No Target</option>
+                        {targets.map(t => (
+                            <option key={t.id} value={t.id}>
+                                {t.title}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* DATE + TIME */}
+                    <div className="flex gap-2">
                         <input
-                            type="text"
-                            placeholder="e.g. Complete DSA Assignment"
-                            className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
-                            value={form.title}
-                            onChange={e => handleChange('title', e.target.value)}
+                            type="date"
+                            value={form.dueDate}
+                            onChange={e => handleChange('dueDate', e.target.value)}
+                            className="w-1/2 p-2 rounded-lg bg-gray-800 text-white"
+                        />
+
+                        <input
+                            type="time"
+                            value={form.dueTime}
+                            onChange={e => handleChange('dueTime', e.target.value)}
+                            className="w-1/2 p-2 rounded-lg bg-gray-800 text-white"
                         />
                     </div>
-
-                    {/* Description */}
-                    <div>
-                        <label className="text-gray-400 text-sm mb-1 block">Description</label>
-                        <textarea
-                            rows={2}
-                            placeholder="Optional details..."
-                            className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 resize-none"
-                            value={form.description}
-                            onChange={e => handleChange('description', e.target.value)}
-                        />
-                    </div>
-
-                    {/* Priority + Target */}
-                    <div className="grid grid-cols-2 gap-3">
-
-                        <div>
-                            <label className="text-gray-400 text-sm mb-1 block">Priority</label>
-                            <select
-                                className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
-                                value={form.priority}
-                                onChange={e => handleChange('priority', e.target.value)}
-                            >
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="text-gray-400 text-sm mb-1 block">Link to Target</label>
-                            <select
-                                className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
-                                value={form.targetId}
-                                onChange={e => handleChange('targetId', e.target.value)}
-                            >
-                                <option value="">None</option>
-                                {targets.map(t => (
-                                    <option key={t.id} value={t.id}>
-                                        {t.title}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                    </div>
-
-                    {/* Due Date + Time */}
-                    <div className="grid grid-cols-2 gap-3">
-
-                        <div>
-                            <label className="text-gray-400 text-sm mb-1 block">Due Date</label>
-                            <input
-                                type="date"
-                                className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
-                                value={form.dueDate}
-                                onChange={e => handleChange('dueDate', e.target.value)}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-gray-400 text-sm mb-1 block">Due Time</label>
-                            <input
-                                type="time"
-                                className="w-full bg-[#0f1117] border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-purple-500"
-                                value={form.dueTime}
-                                onChange={e => handleChange('dueTime', e.target.value)}
-                            />
-                        </div>
-
-                    </div>
-
                 </div>
 
-                {/* Buttons */}
+                {/* ACTIONS */}
                 <div className="flex gap-3 mt-6">
-
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition">
+                        className="flex-1 bg-gray-700 text-white py-2 rounded-lg"
+                    >
                         Cancel
                     </button>
 
                     <button
                         onClick={handleSubmit}
-                        className="flex-1 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition">
-                        {editTask ? 'Update Task' : 'Create Task'}
+                        className="flex-1 bg-cyan-400 text-black py-2 rounded-lg font-semibold"
+                    >
+                        {editTask ? 'Update' : 'Create'}
                     </button>
-
                 </div>
-
-            </div>
-        </div>
+            </MotionDiv>
+        </MotionDiv>
     );
+
+    return createPortal(modalContent, document.body);
 }

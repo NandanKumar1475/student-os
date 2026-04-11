@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import { createTarget } from '../../api/targetApi';
 import toast from 'react-hot-toast';
 
 const CreateTargetModal = ({ isOpen, onClose, onCreated }) => {
+  const MotionDiv = motion.div;
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -36,11 +39,25 @@ const CreateTargetModal = ({ isOpen, onClose, onCreated }) => {
 
   if (!isOpen) return null;
 
-  const inputClass = "w-full bg-[#1e1e35] text-gray-200 px-4 py-3 rounded-xl border border-[#2a2a45] focus:border-blue-500 focus:outline-none transition placeholder-gray-600 text-sm";
+  const inputClass = "w-full rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/35 focus:bg-white/10";
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#151525] rounded-2xl w-full max-w-md p-6 mx-4 border border-[#2a2a45] shadow-2xl">
+  const modalContent = (
+    <MotionDiv
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <MotionDiv
+        initial={{ opacity: 0, y: 28, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 18, scale: 0.98 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-4 w-full max-w-md rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.96),rgba(8,18,31,0.9))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-white">Create New Target</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white text-2xl transition">&times;</button>
@@ -87,18 +104,20 @@ const CreateTargetModal = ({ isOpen, onClose, onCreated }) => {
 
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={loading}
-              className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50 shadow-lg shadow-blue-600/20">
+              className="flex-1 rounded-2xl bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)] py-3 font-semibold text-slate-950 transition hover:brightness-105 disabled:opacity-50">
               {loading ? 'Creating...' : 'Create Target'}
             </button>
             <button type="button" onClick={onClose}
-              className="px-6 py-3 bg-[#1e1e35] text-gray-400 rounded-xl font-semibold hover:bg-[#252545] hover:text-white transition border border-[#2a2a45]">
+              className="rounded-2xl border border-white/10 bg-white/6 px-6 py-3 font-semibold text-gray-400 transition hover:bg-white/10 hover:text-white">
               Cancel
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default CreateTargetModal;

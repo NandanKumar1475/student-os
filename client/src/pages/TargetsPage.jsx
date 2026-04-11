@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { getAllTargets } from '../api/targetApi';
 import { Clock3, Focus, Goal, Plus, TrendingUp } from 'lucide-react';
 import TargetCard from '../components/targets/TargetCard';
@@ -10,7 +11,7 @@ const TargetsPage = () => {
   const [filter, setFilter] = useState('ALL');
   const [showModal, setShowModal] = useState(false);
 
-  const fetchTargets = async () => {
+  const fetchTargets = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
@@ -19,16 +20,16 @@ const TargetsPage = () => {
       }
       const res = await getAllTargets(params);
       setTargets(res.data);
-    } catch (err) {
+    } catch {
       console.error('Failed to fetch targets');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchTargets();
-  }, [filter]);
+  }, [fetchTargets]);
 
   const totalCount = targets.length;
   const activeCount = targets.filter((t) => t.status === 'ACTIVE').length;
@@ -145,11 +146,15 @@ const TargetsPage = () => {
         </div>
       )}
 
-      <CreateTargetModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onCreated={fetchTargets}
-      />
+      <AnimatePresence mode="wait">
+        {showModal && (
+          <CreateTargetModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            onCreated={fetchTargets}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,12 +1,6 @@
 import { toggleFocus, deleteTarget } from '../../api/targetApi';
 import toast from 'react-hot-toast';
 
-const priorityColors = {
-  HIGH: 'bg-red-500/20 text-red-400',
-  MEDIUM: 'bg-yellow-500/20 text-yellow-400',
-  LOW: 'bg-green-500/20 text-green-400',
-};
-
 const typeConfig = {
   EXAM: { icon: '📝', label: 'Exam', color: 'bg-blue-500/20 text-blue-400' },
   JOB: { icon: '💼', label: 'Job', color: 'bg-purple-500/20 text-purple-400' },
@@ -44,7 +38,7 @@ const TargetCard = ({ target, onRefresh }) => {
       await deleteTarget(target.id);
       toast.success('Target deleted');
       onRefresh();
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
     }
   };

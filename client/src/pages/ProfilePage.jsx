@@ -29,12 +29,12 @@ const ProfilePage = () => {
     try {
       const res = await updateProfile({
         ...form,
-        year: form.year ? parseInt(form.year) : null,
+        year: form.year ? parseInt(form.year, 10) : null,
       });
       setUser(res.data.data);
       toast.success('Profile updated!');
       navigate('/');
-    } catch (err) {
+    } catch {
       toast.error('Failed to update profile');
     } finally {
       setLoading(false);
@@ -45,8 +45,8 @@ const ProfilePage = () => {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-      <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(121,224,255,0.14),rgba(255,190,125,0.08),rgba(255,255,255,0.04))] p-8 backdrop-blur-xl">
-        <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-[linear-gradient(135deg,#7be2ff,#ffbd7d)] text-slate-950">
+      <div className="rounded-4xl border border-white/10 bg-[linear-gradient(135deg,rgba(121,224,255,0.14),rgba(255,190,125,0.08),rgba(255,255,255,0.04))] p-8 backdrop-blur-xl">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[linear-gradient(135deg,#7be2ff,#ffbd7d)] text-slate-950">
           <UserCircle2 size={30} />
         </div>
         <p className="mt-6 text-xs uppercase tracking-[0.35em] text-cyan-100/55">Profile settings</p>
@@ -73,7 +73,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.92),rgba(7,17,29,0.76))] p-8 backdrop-blur-xl">
+      <div className="rounded-4xl border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.92),rgba(7,17,29,0.76))] p-8 backdrop-blur-xl">
         <h2 className="text-2xl font-bold text-white mb-6">Edit Profile</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -6,14 +6,6 @@ const TargetFilters = ({ activeFilter, onFilterChange }) => {
     { label: 'Paused', value: 'PAUSED' },
   ];
 
-  const typeFilters = [
-    { label: 'All Types', value: 'ALL' },
-    { label: '📝 Exam', value: 'EXAM' },
-    { label: '💼 Job', value: 'JOB' },
-    { label: '🚀 Skill', value: 'SKILL' },
-    { label: '🎯 Custom', value: 'CUSTOM' },
-  ];
-
   return (
     <div className="flex flex-wrap gap-2">
       {filters.map((f) => (

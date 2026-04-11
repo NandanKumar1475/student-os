@@ -12,12 +12,12 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
     const p = priorityConfig[task.priority] || priorityConfig.MEDIUM;
 
     return (
-        <div className={`flex items-start gap-4 p-4 rounded-[24px] border transition-all backdrop-blur-xl
+        <div className={`flex items-start gap-4 p-4 rounded-3xl border transition-all backdrop-blur-xl
             ${task.completed
                 ? 'bg-white/4 border-white/6 opacity-60'
                 : 'bg-white/6 border-white/10 hover:border-cyan-200/20 hover:bg-white/8'}`}>
 
-            <button onClick={() => onToggle(task.id)} className="mt-0.5 flex-shrink-0">
+            <button onClick={() => onToggle(task.id)} className="mt-0.5 shrink-0">
                 {task.completed
                     ? <CheckCircle2 size={20} className="text-cyan-300" />
                     : <Circle size={20} className="text-slate-500 hover:text-cyan-300 transition" />
@@ -45,7 +45,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }) {
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.color}`}>
                     {p.label}
                 </span>

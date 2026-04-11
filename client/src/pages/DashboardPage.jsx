@@ -6,7 +6,6 @@ import { ArrowRight, BriefcaseBusiness, Clock3, Flame, Goal, TrendingUp } from '
 const DashboardPage = () => {
   const { user } = useAuth();
   const [targets, setTargets] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -15,8 +14,6 @@ const DashboardPage = () => {
         setTargets(res.data);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();

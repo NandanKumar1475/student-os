@@ -1,8 +1,6 @@
-// src/main/java/com/studentos/server/security/UserPrincipal.java
 package com.studentos.server.security;
 
 import com.studentos.server.entity.User;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,13 +10,19 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Getter
-@AllArgsConstructor
 public class UserPrincipal implements UserDetails {
 
     private Long id;
     private String name;
     private String email;
     private String password;
+
+    public UserPrincipal(Long id, String name, String email, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
     public static UserPrincipal create(User user) {
         return new UserPrincipal(
@@ -29,11 +33,16 @@ public class UserPrincipal implements UserDetails {
         );
     }
 
-    @Override public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_USER") // can upgrade later
+        );
     }
 
     @Override public String getUsername() { return email; }
+    @Override public String getPassword() { return password; }
+
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }

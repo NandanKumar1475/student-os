@@ -1,8 +1,8 @@
-// client/src/pages/Tasks.jsx
-
 import { useState, useEffect } from 'react';
-import { Filter, Plus, CheckSquare, Sparkles } from 'lucide-react';
-import { taskService } from '../services/taskService'; // ✅ FIXED
+import { AnimatePresence } from 'framer-motion';
+import { Plus, CheckSquare } from 'lucide-react';
+import { taskService } from '../services/taskService';
+import { gamificationService } from '../services/gamificationService';
 import TaskCard from '../components/tasks/TaskCard';
 import AddTaskModal from '../components/tasks/AddTaskModal';
 import toast from 'react-hot-toast';
@@ -10,9 +10,9 @@ import toast from 'react-hot-toast';
 const TABS = ['Today', 'Upcoming', 'Completed'];
 
 const StatCard = ({ label, value }) => (
-    <div className="rounded-[28px] border border-white/10 bg-white/6 p-5 backdrop-blur-xl">
-        <p className="text-slate-400 text-sm mb-2">{label}</p>
-        <p className="text-white text-3xl font-black">{value}</p>
+    <div className="rounded-xl bg-gray-800 p-4">
+        <p className="text-gray-400 text-sm">{label}</p>
+        <p className="text-white text-2xl font-bold">{value}</p>
     </div>
 );
 
@@ -23,7 +23,7 @@ export default function Tasks() {
     const [showModal, setShowModal] = useState(false);
     const [editTask, setEditTask] = useState(null);
 
-    // ✅ FIXED: No useCallback, clean useEffect
+    // ✅ USE AFTER DECLARATION
     useEffect(() => {
         const loadTasks = async () => {
             try {
@@ -52,25 +52,64 @@ export default function Tasks() {
         loadTasks();
     }, [activeTab]);
 
-    // ✅ Safe handlers
+    // 🔥 TOGGLE (REAL-TIME)
     const handleToggle = async (id) => {
         try {
             await taskService.toggle(id);
-            refresh();
+            gamificationService.recordTask();
+
+            setTasks(prev =>
+                prev.map(t =>
+                    t.id === id ? { ...t, completed: !t.completed } : t
+                )
+            );
+
+            setAllTasks(prev =>
+                prev.map(t =>
+                    t.id === id ? { ...t, completed: !t.completed } : t
+                )
+            );
+
         } catch {
             toast.error("Update failed");
         }
     };
 
+    // 🔥 DELETE (REAL-TIME)
     const handleDelete = async (id) => {
         if (!confirm('Delete this task?')) return;
 
         try {
             await taskService.delete(id);
+
+            setTasks(prev => prev.filter(t => t.id !== id));
+            setAllTasks(prev => prev.filter(t => t.id !== id));
+
             toast.success('Task deleted');
-            refresh();
+
         } catch {
             toast.error("Delete failed");
+        }
+    };
+
+    // 🔥 ADD + EDIT HANDLER
+    const handleTaskAdded = (task, isEdit = false) => {
+        if (isEdit) {
+            // UPDATE EXISTING
+            setAllTasks(prev =>
+                prev.map(t => (t.id === task.id ? task : t))
+            );
+
+            setTasks(prev =>
+                prev.map(t => (t.id === task.id ? task : t))
+            );
+        } else {
+            // ADD NEW
+            setAllTasks(prev => [task, ...prev]);
+
+            if (activeTab === 'Today') {
+                setTasks(prev => [task, ...prev]);
+            }
         }
     };
 
@@ -79,12 +118,7 @@ export default function Tasks() {
         setShowModal(true);
     };
 
-    // ✅ Helper to reload tasks
-    const refresh = () => {
-        setActiveTab(prev => prev); // triggers useEffect
-    };
-
-    // ✅ FIXED date logic
+    // 📊 STATS (AUTO UPDATE)
     const today = new Date();
 
     const upcomingCount = allTasks.filter(t => {
@@ -93,93 +127,61 @@ export default function Tasks() {
     }).length;
 
     const completedCount = allTasks.filter(t => t.completed).length;
-    const todayTotal = allTasks.length;
 
     const completionRate =
-        todayTotal > 0 ? Math.round((completedCount / todayTotal) * 100) : 0;
+        allTasks.length > 0
+            ? Math.round((completedCount / allTasks.length) * 100)
+            : 0;
 
     return (
-        <div className="mx-auto max-w-6xl space-y-6">
-            <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(121,224,255,0.14),rgba(255,190,125,0.08),rgba(255,255,255,0.04))] p-8 backdrop-blur-xl">
-                    <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Task flow</p>
-                    <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Work that feels organized instantly.</h1>
-                    <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                        The design is more premium now, but still built to stay easy to scan and easy to understand.
-                    </p>
-                </div>
+        <div className="p-6 space-y-6">
 
-                <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.92),rgba(7,17,29,0.76))] p-6 backdrop-blur-xl">
-                    <div className="flex items-center gap-2 text-cyan-200">
-                        <Sparkles size={18} />
-                        <span className="text-sm font-medium">Task clarity</span>
-                    </div>
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
-                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Due soon</p>
-                            <p className="mt-2 text-2xl font-bold text-white">{upcomingCount}</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/10 bg-white/6 p-4">
-                            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Completion</p>
-                            <p className="mt-2 text-2xl font-bold text-white">{completionRate}%</p>
-                        </div>
-                    </div>
-                </div>
+            {/* HEADER */}
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-bold text-white flex gap-2">
+                    Tasks <CheckSquare />
+                </h1>
+
+                <button
+                    onClick={() => {
+                        setEditTask(null);
+                        setShowModal(true);
+                    }}
+                    className="bg-cyan-400 text-black px-4 py-2 rounded-lg flex gap-2 items-center"
+                >
+                    <Plus size={16} /> Add Task
+                </button>
             </div>
 
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-                        Tasks <CheckSquare size={28} className="text-emerald-300" />
-                    </h1>
-                    <p className="text-slate-400 mt-1">
-                        Manage your daily tasks and to-dos
-                    </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                    <button className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-slate-300 transition hover:bg-white/10 hover:text-white">
-                        <Filter size={16} /> Filter
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            setEditTask(null);
-                            setShowModal(true);
-                        }}
-                        className="flex items-center gap-2 rounded-2xl bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)] px-5 py-3 text-slate-950 font-semibold transition hover:brightness-105">
-                        <Plus size={18} /> Add Task
-                    </button>
-                </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* STATS */}
+            <div className="grid grid-cols-4 gap-4">
                 <StatCard label="Today's Tasks" value={tasks.length} />
                 <StatCard label="Upcoming" value={upcomingCount} />
                 <StatCard label="Completed" value={completedCount} />
-                <StatCard label="Completion Rate" value={`${completionRate}%`} />
+                <StatCard label="Completion %" value={`${completionRate}%`} />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            {/* TABS */}
+            <div className="flex gap-2">
                 {TABS.map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-5 py-2.5 rounded-2xl text-sm font-medium transition
-                        ${activeTab === tab
-                                ? 'border border-cyan-200/20 bg-cyan-300/15 text-white'
-                                : 'border border-white/10 bg-white/6 text-slate-400 hover:bg-white/10 hover:text-white'}`}>
+                        className={`px-4 py-2 rounded-lg ${
+                            activeTab === tab
+                                ? 'bg-cyan-400 text-black'
+                                : 'bg-gray-700 text-white'
+                        }`}
+                    >
                         {tab}
                     </button>
                 ))}
             </div>
 
-            <div className="space-y-3">
+            {/* TASK LIST */}
+            <div className="space-y-2">
                 {tasks.length === 0 ? (
-                    <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,34,0.88),rgba(7,17,29,0.72))] py-16 text-center text-slate-500 backdrop-blur-xl">
-                        <CheckSquare size={48} className="mx-auto mb-3 opacity-30" />
-                        <p>No tasks here. Add one!</p>
-                    </div>
+                    <p className="text-gray-400">No tasks</p>
                 ) : (
                     tasks.map(task => (
                         <TaskCard
@@ -193,16 +195,19 @@ export default function Tasks() {
                 )}
             </div>
 
-            {showModal && (
-                <AddTaskModal
-                    editTask={editTask}
-                    onClose={() => {
-                        setShowModal(false);
-                        setEditTask(null);
-                    }}
-                    onTaskAdded={refresh}
-                />
-            )}
+            {/* MODAL */}
+            <AnimatePresence>
+                {showModal && (
+                    <AddTaskModal
+                        editTask={editTask}
+                        onClose={() => {
+                            setShowModal(false);
+                            setEditTask(null);
+                        }}
+                        onTaskAdded={handleTaskAdded}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
