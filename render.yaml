@@ -1,37 +1,39 @@
 services:
-  # Backend API Service
   - type: web
     name: studentos-backend
     runtime: docker
-    buildCommand: docker build -t studentos-backend ./server
-    dockerfilePath: ./server/Dockerfile
+    dockerfilePath: ./server/server/Dockerfile
+    dockerContext: ./server/server
+    healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: JAVA_OPTS
         value: -Xmx512m -Xms256m
-    healthCheckPath: /actuator/health
-    disk:
-      name: studentos-data
-      mountPath: /app/data
-      sizeGB: 1
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://studentos-frontend.onrender.com,http://localhost:5173
 
-  # Frontend Service
   - type: web
     name: studentos-frontend
-    runtime: node
-    buildCommand: cd client && npm install && npm run build
+    runtime: static
+    buildCommand: cd client && npm ci && npm run build
     staticPublishPath: ./client/dist
-    pullRequestPreviewsEnabled: true
+    previews:
+      generation: automatic
     envVars:
       - key: NODE_VERSION
-        value: 18
+        value: 22.21.0
+      - key: VITE_API_URL
+        value: https://studentos-backend.onrender.com/api
     routes:
       - type: rewrite
-        source: /api/(.*)
-        destination: /api/$1
-
-# Environment variables for both services
-envVars:
-  - key: NODE_ENV
-    value: production
+        source: /*
+        destination: /index.html

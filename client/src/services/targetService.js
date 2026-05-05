@@ -1,9 +1,9 @@
 // client/src/services/targetService.js
 
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
-// 👉 Base URL (Spring Boot backend)
-const API_URL = "http://localhost:8080/api/targets";
+const API_URL = `${API_BASE_URL}/targets`;
 
 export const targetService = {
 

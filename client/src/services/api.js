@@ -1,16 +1,15 @@
 // client/src/services/api.js
 
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
-// ✅ Axios instance
 const api = axios.create({
-    baseURL: "http://localhost:8080/api", // your Spring Boot base URL
+    baseURL: API_BASE_URL,
     headers: {
         "Content-Type": "application/json"
     }
 });
 
-// ✅ Optional: Attach JWT token automatically
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
 
