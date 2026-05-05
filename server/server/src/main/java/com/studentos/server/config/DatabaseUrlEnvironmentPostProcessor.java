@@ -21,7 +21,7 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String datasourceUrl = environment.getProperty("spring.datasource.url");
         String databaseUrl = environment.getProperty("DATABASE_URL");
-        String rawUrl = StringUtils.hasText(datasourceUrl) ? datasourceUrl : databaseUrl;
+        String rawUrl = hasResolvedText(datasourceUrl) ? datasourceUrl : databaseUrl;
 
         if (!StringUtils.hasText(rawUrl) || rawUrl.startsWith("jdbc:")) {
             return;
@@ -73,5 +73,9 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 
     private static String decode(String value) {
         return URLDecoder.decode(value, StandardCharsets.UTF_8);
+    }
+
+    private static boolean hasResolvedText(String value) {
+        return StringUtils.hasText(value) && !value.startsWith("${");
     }
 }
