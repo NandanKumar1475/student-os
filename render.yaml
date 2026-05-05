@@ -1,0 +1,37 @@
+services:
+  # Backend API Service
+  - type: web
+    name: studentos-backend
+    runtime: docker
+    buildCommand: docker build -t studentos-backend ./server
+    dockerfilePath: ./server/Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_OPTS
+        value: -Xmx512m -Xms256m
+    healthCheckPath: /actuator/health
+    disk:
+      name: studentos-data
+      mountPath: /app/data
+      sizeGB: 1
+
+  # Frontend Service
+  - type: web
+    name: studentos-frontend
+    runtime: node
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+    routes:
+      - type: rewrite
+        source: /api/(.*)
+        destination: /api/$1
+
+# Environment variables for both services
+envVars:
+  - key: NODE_ENV
+    value: production

@@ -1,0 +1,26 @@
+# Exclude development files
+.vscode/
+.idea/
+.git/
+.github/
+*.log
+*.tmp
+
+# Exclude local development files
+.env
+.env.local
+.env.development
+
+# Exclude build artifacts (will be built on Render)
+client/node_modules/
+server/server/target/
+server/server/*.log
+
+# Exclude IDE files
+*.swp
+*.swo
+*~
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
