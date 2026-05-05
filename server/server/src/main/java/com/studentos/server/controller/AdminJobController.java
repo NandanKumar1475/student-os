@@ -1,7 +1,6 @@
 package com.studentos.server.controller;
 
 import com.studentos.server.dto.request.JobPostingRequest;
-import com.studentos.server.dto.response.ApiResponse;
 import com.studentos.server.dto.response.JobPostingResponse;
 import com.studentos.server.enums.OpportunityType;
 import com.studentos.server.service.JobService;
