@@ -7,10 +7,13 @@ import com.studentos.server.dto.NoteDTO;
 import com.studentos.server.dto.NoteRequestDTO;
 import com.studentos.server.entity.Note;
 import com.studentos.server.entity.User;
+import com.studentos.server.exception.ResourceNotFoundException;
 import com.studentos.server.repository.NoteRepository;
 import com.studentos.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +33,9 @@ public class NoteService {
 
     public NoteDTO getNoteById(Long userId, Long noteId) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
         if (!note.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         return toDTO(note);
     }
 
@@ -52,7 +55,7 @@ public class NoteService {
 
     public NoteDTO createNote(Long userId, NoteRequestDTO request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Note note = Note.builder()
                 .user(user)
@@ -67,10 +70,10 @@ public class NoteService {
 
     public NoteDTO updateNote(Long userId, Long noteId, NoteRequestDTO request) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
 
         if (!note.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         note.setTitle(request.getTitle());
         note.setContent(request.getContent());
@@ -81,10 +84,10 @@ public class NoteService {
 
     public NoteDTO togglePin(Long userId, Long noteId) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
 
         if (!note.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         note.setPinned(!note.getPinned());
         return toDTO(noteRepository.save(note));
@@ -92,10 +95,10 @@ public class NoteService {
 
     public void deleteNote(Long userId, Long noteId) {
         Note note = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
 
         if (!note.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         noteRepository.delete(note);
     }

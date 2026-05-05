@@ -7,11 +7,14 @@ import com.studentos.server.dto.TaskRequestDTO;
 import com.studentos.server.entity.Target;
 import com.studentos.server.entity.Task;
 import com.studentos.server.entity.User;
+import com.studentos.server.exception.ResourceNotFoundException;
 import com.studentos.server.repository.TargetRepository;
 import com.studentos.server.repository.TaskRepository;
 import com.studentos.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,7 +50,7 @@ public class TaskService {
 
     public TaskDTO createTask(Long userId, TaskRequestDTO request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Target target = null;
         if (request.getTargetId() != null) {
@@ -71,10 +74,10 @@ public class TaskService {
 
     public TaskDTO updateTask(Long userId, Long taskId, TaskRequestDTO request) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         Target target = null;
         if (request.getTargetId() != null) {
@@ -93,10 +96,10 @@ public class TaskService {
 
     public TaskDTO toggleComplete(Long userId, Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         task.setCompleted(!task.getCompleted());
         return toDTO(taskRepository.save(task));
@@ -104,10 +107,10 @@ public class TaskService {
 
     public void deleteTask(Long userId, Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
 
         taskRepository.delete(task);
     }

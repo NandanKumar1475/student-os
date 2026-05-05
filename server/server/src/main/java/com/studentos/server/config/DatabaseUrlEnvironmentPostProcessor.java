@@ -65,8 +65,14 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         if (StringUtils.hasText(uri.getRawPath())) {
             jdbcUrl.append(uri.getRawPath());
         }
-        if (StringUtils.hasText(uri.getRawQuery())) {
-            jdbcUrl.append('?').append(uri.getRawQuery());
+        String query = uri.getRawQuery();
+        if (StringUtils.hasText(query)) {
+            jdbcUrl.append('?').append(query);
+            if (!query.contains("sslmode")) {
+                jdbcUrl.append("&sslmode=prefer");
+            }
+        } else {
+            jdbcUrl.append("?sslmode=prefer");
         }
         return jdbcUrl.toString();
     }
