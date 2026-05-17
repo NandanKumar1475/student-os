@@ -13,22 +13,14 @@ import {
   Bell,
   Search,
   LogOut,
+  Menu,
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from "../hooks/useAuth";
 import { gamificationService } from '../services/gamificationService';
 import { notificationService } from '../services/notificationService';
-
-const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/targets', label: 'Targets', icon: Goal },
-  { path: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { path: '/notes', label: 'Notes', icon: FileText },
-  { path: '/streaks', label: 'Streaks', icon: Flame },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/jobs', label: 'Jobs', icon: BriefcaseBusiness },
-  { path: '/resources', label: 'Resources', icon: Library },
-];
+import MobileNavigation from '../components/layout/MobileNavigation';
+import { navItems as appNavItems } from '../components/layout/navConfig';
 
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -106,6 +98,7 @@ const MainLayout = ({ children }) => {
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase()
     : '?';
 
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const pageContent = children || <Outlet />;
   const currentStreak = gamification?.streak?.currentStreak ?? 0;
   const totalXP = gamification?.xp?.totalXP ?? 0;
@@ -134,7 +127,7 @@ const MainLayout = ({ children }) => {
         </div>
 
         <nav className="mt-6 flex-1 space-y-2">
-          {navItems.map((item) => (
+          {appNavItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -192,9 +185,19 @@ const MainLayout = ({ children }) => {
       <div className="relative z-10 flex min-h-screen flex-1 flex-col overflow-hidden">
         <header className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(8,19,33,0.92),rgba(8,18,30,0.7))] px-4 py-4 backdrop-blur-xl sm:px-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Student command center</p>
-              <h2 className="mt-1 text-2xl font-black tracking-tight text-white">Easy to use. Hard to ignore.</h2>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsMobileNavOpen(true)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-slate-300 transition hover:bg-white/10 hover:text-white lg:hidden"
+                aria-label="Open navigation menu"
+              >
+                <Menu size={18} />
+              </button>
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Student command center</p>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-white">Easy to use. Hard to ignore.</h2>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -278,6 +281,15 @@ const MainLayout = ({ children }) => {
             </div>
           </div>
         </header>
+
+        <MobileNavigation
+          isOpen={isMobileNavOpen}
+          onClose={() => setIsMobileNavOpen(false)}
+          currentPath={location.pathname}
+          userInitials={initials}
+          userName={user?.name || 'Student'}
+          userRole={user?.branch || 'Student'}
+        />
 
         <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
           <AnimatePresence mode="wait" initial={false}>

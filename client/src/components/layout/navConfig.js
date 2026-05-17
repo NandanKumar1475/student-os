@@ -1,10 +1,12 @@
 import {
   BarChart3,
   Box,
+  BriefcaseBusiness,
   CheckSquare,
   Flame,
   Goal,
   LayoutDashboard,
+  Library,
   NotebookText,
   UserCircle2,
 } from 'lucide-react';
@@ -45,6 +47,18 @@ export const navItems = [
     label: 'Analytics',
     icon: BarChart3,
     description: 'Insights and trends',
+  },
+  {
+    path: '/jobs',
+    label: 'Jobs',
+    icon: BriefcaseBusiness,
+    description: 'Career opportunities',
+  },
+  {
+    path: '/resources',
+    label: 'Resources',
+    icon: Library,
+    description: 'Study materials',
   },
   {
     path: '/vr',
