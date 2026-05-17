@@ -26,6 +26,34 @@ class DatabaseUrlEnvironmentPostProcessorTests {
     }
 
     @Test
+    void addsSupabaseTransactionPoolerJdbcDefaults() {
+        MockEnvironment environment = new MockEnvironment()
+                .withProperty(
+                        "DATABASE_URL",
+                        "postgres://postgres.zoxwvpzqkacpvernzwmg:secret@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+                );
+
+        processor.postProcessEnvironment(environment, new SpringApplication());
+
+        assertThat(environment.getProperty("spring.datasource.url"))
+                .isEqualTo("jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0");
+    }
+
+    @Test
+    void preservesExistingSupabaseJdbcParameters() {
+        MockEnvironment environment = new MockEnvironment()
+                .withProperty(
+                        "DATABASE_URL",
+                        "postgres://postgres.zoxwvpzqkacpvernzwmg:secret@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0"
+                );
+
+        processor.postProcessEnvironment(environment, new SpringApplication());
+
+        assertThat(environment.getProperty("spring.datasource.url"))
+                .isEqualTo("jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0");
+    }
+
+    @Test
     void leavesJdbcUrlUntouched() {
         MockEnvironment environment = new MockEnvironment()
                 .withProperty("DATABASE_URL", "jdbc:postgresql://host.example.com:5432/student_os");

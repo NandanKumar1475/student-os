@@ -77,10 +77,36 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         if (StringUtils.hasText(uri.getRawPath())) {
             jdbcUrl.append(uri.getRawPath());
         }
-        if (StringUtils.hasText(uri.getRawQuery())) {
-            jdbcUrl.append('?').append(uri.getRawQuery());
+        String query = withSupabaseDefaults(uri, uri.getRawQuery());
+        if (StringUtils.hasText(query)) {
+            jdbcUrl.append('?').append(query);
         }
         return jdbcUrl.toString();
+    }
+
+    private static String withSupabaseDefaults(URI uri, String rawQuery) {
+        String host = uri.getHost();
+        if (!StringUtils.hasText(host) || !host.endsWith("supabase.com")) {
+            return rawQuery;
+        }
+
+        String query = appendQueryParameterIfMissing(rawQuery, "sslmode", "require");
+        if (host.endsWith(".pooler.supabase.com") && uri.getPort() == 6543) {
+            query = appendQueryParameterIfMissing(query, "prepareThreshold", "0");
+        }
+        return query;
+    }
+
+    private static String appendQueryParameterIfMissing(String rawQuery, String name, String value) {
+        if (StringUtils.hasText(rawQuery)) {
+            for (String parameter : rawQuery.split("&")) {
+                if (parameter.equals(name) || parameter.startsWith(name + "=")) {
+                    return rawQuery;
+                }
+            }
+            return rawQuery + "&" + name + "=" + value;
+        }
+        return name + "=" + value;
     }
 
     private static String decode(String value) {
