@@ -31,6 +31,27 @@ const chartTooltipStyle = {
   borderRadius: '16px',
 };
 
+const safeArray = (value) => (Array.isArray(value) ? value : []);
+
+const toIsoDate = (date) => date.toISOString().slice(0, 10);
+
+const getSevenDayPerformance = (heatmap) => {
+  const rows = safeArray(heatmap);
+  const today = new Date();
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (6 - index));
+    const iso = toIsoDate(date);
+    const activity = rows.find((row) => row.date === iso);
+
+    return {
+      label: date.toLocaleDateString(undefined, { weekday: 'short' }),
+      value: activity?.xpEarned || 0,
+    };
+  });
+};
+
 const AnalyticsPage = () => {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
@@ -87,26 +108,11 @@ const AnalyticsPage = () => {
     }));
   }, [targets]);
 
-  const weeklyPerformance = (() => {
-    const base = [
-      { label: 'Mon', value: 62 },
-      { label: 'Tue', value: 71 },
-      { label: 'Wed', value: 68 },
-      { label: 'Thu', value: 82 },
-      { label: 'Fri', value: 77 },
-      { label: 'Sat', value: 58 },
-      { label: 'Sun', value: 73 },
-    ];
-
-    const streakBoost = gamification?.streak?.currentStreak
-      ? Math.min(gamification.streak.currentStreak, 18) / 10
-      : 0;
-
-    return base.map((item, index) => ({
-      ...item,
-      value: Math.round(item.value + streakBoost * (index % 3 === 0 ? 4 : 2)),
-    }));
-  })();
+  const weeklyPerformance = useMemo(
+    () => getSevenDayPerformance(gamification?.heatmap),
+    [gamification?.heatmap],
+  );
+  const hasWeeklyActivity = weeklyPerformance.some((item) => item.value > 0);
 
   const insightCards = [
     {
@@ -129,7 +135,7 @@ const AnalyticsPage = () => {
     },
     {
       label: 'Consistency Index',
-      value: `${gamification?.streak?.currentStreak || 12}`,
+      value: `${gamification?.streak?.currentStreak ?? 0}`,
       note: 'Current active streak',
       icon: ChartNoAxesCombined,
     },
@@ -201,7 +207,7 @@ const AnalyticsPage = () => {
               <h2 className="mt-2 text-2xl font-semibold text-white">Focus performance</h2>
             </div>
             <div className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 px-3 py-1.5 text-sm text-emerald-200">
-              Stable
+              {hasWeeklyActivity ? 'Live' : 'No activity yet'}
             </div>
           </div>
 
@@ -224,7 +230,7 @@ const AnalyticsPage = () => {
                   {weeklyPerformance.map((entry) => (
                     <Cell
                       key={entry.label}
-                      fill={entry.value >= 75 ? '#818cf8' : '#3b82f6'}
+                      fill={entry.value > 0 ? '#818cf8' : '#334155'}
                     />
                   ))}
                 </Bar>
@@ -331,15 +337,17 @@ const AnalyticsPage = () => {
             <div className="rounded-3xl border border-white/10 bg-white/4 p-4">
               <p className="text-sm font-medium text-white">Knowledge retention</p>
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                {notes.filter((note) => note.pinned).length
-                  ? 'Pinned notes exist, which is great. Add one review block this week to keep them active.'
-                  : 'Your note system has content, but none is pinned for recall. Save your best revision material.'}
+                {notes.length === 0
+                  ? 'No notes exist yet. Create your first note when you finish a study session.'
+                  : notes.filter((note) => note.pinned).length
+                    ? 'Pinned notes exist. Add one review block this week to keep them active.'
+                    : 'Notes exist, but none are pinned for recall. Save your best revision material.'}
               </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/4 p-4">
               <p className="text-sm font-medium text-white">Consistency pressure</p>
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                Your active streak is {gamification?.streak?.currentStreak || 12} days. Protect it with one lightweight win on heavy days.
+                Your active streak is {gamification?.streak?.currentStreak ?? 0} days. Protect it with one lightweight win on heavy days.
               </p>
             </div>
           </div>

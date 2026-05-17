@@ -7,6 +7,10 @@ import TargetsPage from '../pages/TargetsPage';
 import Tasks from '../pages/Tasks';
 import Notes from '../pages/Notes';
 import Streaks from '../pages/Streaks';
+import AnalyticsPage from '../pages/AnalyticsPage';
+import JobsPage from '../pages/JobsPage';
+import ResourcesPage from '../pages/ResourcesPage';
+import VRStudyRoom from '../pages/VRStudyRoom';
 
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
@@ -32,7 +36,16 @@ const AppRoutes = () => {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/streaks" element={<Streaks />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
         </Route>
+
+        <Route path="/vr" element={
+          <ProtectedRoute>
+            <VRStudyRoom />
+          </ProtectedRoute>
+        } />
 
         {/* 404 */}
         <Route path="*" element={

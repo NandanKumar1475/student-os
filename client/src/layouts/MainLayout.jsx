@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -15,6 +16,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from "../hooks/useAuth";
+import { gamificationService } from '../services/gamificationService';
+import { notificationService } from '../services/notificationService';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -32,10 +35,71 @@ const MainLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const MotionDiv = motion.div;
+  const [gamification, setGamification] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    const loadShellData = async () => {
+      const [gamificationResult, notificationResult] = await Promise.allSettled([
+        gamificationService.getDashboard(),
+        notificationService.getAll(),
+      ]);
+
+      if (!active) {
+        return;
+      }
+
+      setGamification(gamificationResult.status === 'fulfilled' ? gamificationResult.value.data : null);
+      setNotifications(notificationResult.status === 'fulfilled' ? notificationResult.value.data || [] : []);
+    };
+
+    void loadShellData();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const query = searchTerm.trim();
+
+    if (!query) {
+      return;
+    }
+
+    navigate(`/tasks?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleNotificationClick = async (notification) => {
+    if (!notification.read) {
+      setNotifications((items) =>
+        items.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
+      );
+
+      try {
+        await notificationService.markRead(notification.id);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    setNotificationsOpen(false);
+
+    if (notification.link?.startsWith('http')) {
+      window.open(notification.link, '_blank', 'noopener,noreferrer');
+    } else if (notification.link) {
+      navigate(notification.link);
+    }
   };
 
   const initials = user?.name
@@ -43,6 +107,11 @@ const MainLayout = ({ children }) => {
     : '?';
 
   const pageContent = children || <Outlet />;
+  const currentStreak = gamification?.streak?.currentStreak ?? 0;
+  const totalXP = gamification?.xp?.totalXP ?? 0;
+  const xpThisWeek = gamification?.xp?.xpThisWeek ?? 0;
+  const levelProgress = Math.round((gamification?.xp?.levelProgress ?? 0) * 100);
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-[#07111f] text-white">
@@ -88,16 +157,19 @@ const MainLayout = ({ children }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/55">Momentum</p>
-              <p className="mt-2 text-3xl font-black text-white">12 day</p>
+              <p className="mt-2 text-3xl font-black text-white">{currentStreak} day</p>
             </div>
             <div className="rounded-2xl bg-orange-300/12 px-3 py-2 text-orange-200">Streak</div>
           </div>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/8">
-            <div className="h-full w-[72%] rounded-full bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)]" />
+            <div
+              className="h-full rounded-full bg-[linear-gradient(90deg,#79e0ff,#ffbf7d)]"
+              style={{ width: `${Math.min(100, Math.max(0, levelProgress))}%` }}
+            />
           </div>
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-slate-400">2,450 XP earned</span>
-            <span className="text-emerald-300">+120 this week</span>
+            <span className="text-slate-400">{totalXP.toLocaleString()} XP earned</span>
+            <span className="text-emerald-300">+{xpThisWeek} this week</span>
           </div>
         </div>
 
@@ -126,19 +198,75 @@ const MainLayout = ({ children }) => {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative w-full sm:w-80">
+              <form onSubmit={handleSearch} className="relative w-full sm:w-80">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search tasks, goals, jobs..."
                   className="w-full rounded-2xl border border-white/10 bg-white/6 py-3 pl-11 pr-4 text-sm text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-cyan-300/35 focus:bg-white/10"
                 />
-              </div>
+              </form>
 
-              <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-slate-300 transition hover:bg-white/10 hover:text-white">
-                <Bell size={18} />
-                <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-cyan-300" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setNotificationsOpen((open) => !open)}
+                  className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                  aria-label="Notifications"
+                >
+                  <Bell size={18} />
+                  {unreadCount > 0 && (
+                    <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-cyan-300" />
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 top-13 z-30 w-80 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-xl">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                      <p className="text-sm font-semibold text-white">Notifications</p>
+                      <span className="rounded-full bg-white/8 px-2 py-1 text-xs text-slate-400">
+                        {unreadCount} unread
+                      </span>
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto p-2">
+                      {notifications.length ? (
+                        notifications.map((notification) => (
+                          <button
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            className="w-full rounded-2xl px-3 py-3 text-left transition hover:bg-white/8"
+                          >
+                            <div className="flex items-start gap-3">
+                              <span
+                                className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
+                                  notification.read ? 'bg-slate-600' : 'bg-cyan-300'
+                                }`}
+                              />
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-white">
+                                  {notification.title || 'Notification'}
+                                </p>
+                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">
+                                  {notification.body || 'No details available.'}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-8 text-center">
+                          <p className="text-sm font-medium text-white">No notifications yet</p>
+                          <p className="mt-2 text-xs leading-5 text-slate-500">
+                            Updates from targets, admin posts, and achievements will appear here.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleLogout}

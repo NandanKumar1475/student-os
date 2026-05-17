@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,9 @@ public class JobService {
             return getAdminPostings(type);
         }
 
-        List<JobPostingResponse> adminPosts = getAdminPostings(type);
+        List<JobPostingResponse> adminPosts = getAdminPostings(type).stream()
+                .filter(posting -> posting.getType() != OpportunityType.RESOURCE)
+                .collect(Collectors.toList());
         List<JobPostingResponse> external = fetchExternalJobMatches(user);
 
         return Stream.concat(adminPosts.stream(), external.stream())
@@ -102,7 +105,7 @@ public class JobService {
                     .get()
                     .retrieve()
                     .bodyToMono(Map.class)
-                    .block();
+                    .block(Duration.ofSeconds(5));
             if (response == null || !response.containsKey("jobs")) {
                 return Collections.emptyList();
             }
