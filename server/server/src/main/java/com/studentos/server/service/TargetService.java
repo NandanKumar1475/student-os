@@ -143,6 +143,10 @@ public class TargetService {
         Target target = targetRepository.findByIdAndUserId(targetId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Target not found"));
 
+        if (progress == null) {
+            throw new BadRequestException("Progress is required");
+        }
+
         if (progress < 0 || progress > 100) {
             throw new BadRequestException("Progress must be between 0 and 100");
         }

@@ -1,35 +1,27 @@
 // client/src/services/targetService.js
 
-import axios from "axios";
-import { API_BASE_URL } from "../config/api";
-
-const API_URL = `${API_BASE_URL}/targets`;
+import api from "../api/axiosInstance";
 
 export const targetService = {
 
-    // ✅ Get all targets
     getAll: () => {
-        return axios.get(API_URL);
+        return api.get("/targets");
     },
 
-    // ✅ Get target by ID
     getById: (id) => {
-        return axios.get(`${API_URL}/${id}`);
+        return api.get(`/targets/${id}`);
     },
 
-    // ✅ Create new target
     create: (data) => {
-        return axios.post(API_URL, data);
+        return api.post("/targets", data);
     },
 
-    // ✅ Update target
     update: (id, data) => {
-        return axios.put(`${API_URL}/${id}`, data);
+        return api.put(`/targets/${id}`, data);
     },
 
-    // ✅ Delete target
     delete: (id) => {
-        return axios.delete(`${API_URL}/${id}`);
+        return api.delete(`/targets/${id}`);
     }
 
 };
