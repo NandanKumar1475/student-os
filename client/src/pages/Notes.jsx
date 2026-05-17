@@ -1,7 +1,7 @@
 // client/src/pages/Notes.jsx
 
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, FileText, Hash, X, SortAsc, Filter } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Plus, Search, FileText, Hash, X, Filter } from 'lucide-react';
 import { noteService } from '../services/noteService';
 import { gamificationService } from '../services/gamificationService';
 import NoteCard from '../components/notes/NoteCard';
@@ -15,6 +15,17 @@ export default function Notes() {
     const [allTags, setAllTags] = useState([]);
     const [activeTag, setActiveTag] = useState(null);
     const [showTagFilter, setShowTagFilter] = useState(false);
+    const [loadingNotes, setLoadingNotes] = useState(false);
+    const [notesError, setNotesError] = useState('');
+
+    const sortedNotes = useMemo(() => {
+        return [...notes].sort((a, b) => {
+            if ((a.pinned ? 1 : 0) !== (b.pinned ? 1 : 0)) {
+                return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+            }
+            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+    }, [notes]);
 
     const fetchNoteById = useCallback(async (id) => {
         const res = await noteService.getById(id);
@@ -44,11 +55,23 @@ export default function Notes() {
     }, [searchQuery, activeTag]);
 
     const loadNotes = useCallback(async () => {
+        setNotesError('');
+        setLoadingNotes(true);
+
         try {
             const data = await fetchNotesData();
             setNotes(data);
-        } catch {
+            if (data.length === 0) {
+                setSelectedNote(null);
+            }
+        } catch (error) {
+            console.error('Failed to load notes', error);
+            setNotes([]);
+            setSelectedNote(null);
+            setNotesError('Unable to load notes. Please retry or check your network.');
             toast.error('Failed to load notes');
+        } finally {
+            setLoadingNotes(false);
         }
     }, [fetchNotesData]);
 
@@ -67,19 +90,22 @@ export default function Notes() {
     }, [fetchTagsData]);
 
     useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchNotesData();
-                setNotes(data);
-            } catch {
-                toast.error('Failed to load notes');
-            }
-        };
-        void load();
-    }, [fetchNotesData]);
+        void Promise.all([loadNotes(), loadTags()]);
+    }, [loadNotes, loadTags]);
 
     useEffect(() => {
-        if (notes.length > 0 && !selectedNote) {
+        if (loadingNotes) {
+            return;
+        }
+
+        if (notes.length === 0) {
+            setSelectedNote(null);
+            return;
+        }
+
+        const activeNoteExists = notes.some((note) => note.id === selectedNote?.id);
+
+        if (!activeNoteExists) {
             const load = async () => {
                 try {
                     const data = await fetchNoteById(notes[0].id);
@@ -90,19 +116,7 @@ export default function Notes() {
             };
             void load();
         }
-    }, [notes, selectedNote, fetchNoteById]);
-
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchTagsData();
-                setAllTags(data);
-            } catch {
-                /* silent */
-            }
-        };
-        void load();
-    }, [fetchTagsData]);
+    }, [notes, selectedNote, fetchNoteById, loadingNotes]);
 
     const handleCreate = async () => {
         try {
@@ -111,11 +125,17 @@ export default function Notes() {
                 content: '',
                 tags: activeTag ? [activeTag] : [],
             });
-            gamificationService.recordNote();
+            if (searchQuery) {
+                setSearchQuery('');
+            }
+            if (activeTag) {
+                setActiveTag(null);
+            }
             await loadNotes();
             setSelectedNote(res.data);
             toast.success('Note created!');
-        } catch {
+        } catch (error) {
+            console.error('Failed to create note', error);
             toast.error('Failed to create note');
         }
     };
@@ -156,25 +176,53 @@ export default function Notes() {
     return (
         <div className="p-8 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                         Notes <FileText size={28} className="text-yellow-400" />
                     </h1>
-                    <p className="text-gray-400 mt-1">Your study notes and documentation</p>
+                    <p className="text-gray-400 mt-1 max-w-2xl">
+                        Capture, organize, and review your study content with fast search, tags, and markdown preview.
+                    </p>
                 </div>
+
                 <button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl
-                               bg-purple-600 hover:bg-purple-700 text-white font-semibold
-                               transition shadow-lg shadow-purple-500/20">
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl
+                               bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-semibold
+                               shadow-lg shadow-fuchsia-500/20 hover:brightness-110 transition"
+                >
                     <Plus size={18} /> New Note
                 </button>
             </div>
 
-            {/* Two-panel layout */}
-            <div className="flex gap-5 h-[calc(100vh-200px)]">
+            <div className="grid gap-4 mb-6 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-xl shadow-slate-900/40">
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mb-3">Notes</p>
+                    <p className="text-3xl font-semibold text-white">{notes.length}</p>
+                    <p className="text-sm text-slate-400 mt-2">Total notes in your workspace.</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-xl shadow-slate-900/40">
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mb-3">Pinned</p>
+                    <p className="text-3xl font-semibold text-white">{pinnedCount}</p>
+                    <p className="text-sm text-slate-400 mt-2">Pinned notes stay front and center.</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-xl shadow-slate-900/40">
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mb-3">Tags</p>
+                    <p className="text-3xl font-semibold text-white">{allTags.length}</p>
+                    <p className="text-sm text-slate-400 mt-2">Organized ideas ready to filter.</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-5 shadow-xl shadow-slate-900/40">
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mb-3">Quick actions</p>
+                    <div className="flex flex-col gap-2 text-sm text-slate-300">
+                        <span>Search notes instantly</span>
+                        <span>Filter by tags</span>
+                        <span>Create notes in one click</span>
+                    </div>
+                </div>
+            </div>
 
+            <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)] h-[calc(100vh-260px)]">
                 {/* ── Left Panel ── */}
                 <div className="w-80 shrink-0 flex flex-col">
                     {/* Search */}
@@ -240,7 +288,23 @@ export default function Notes() {
 
                     {/* Notes list */}
                     <div className="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-                        {notes.length === 0 ? (
+                        {loadingNotes ? (
+                            <div className="space-y-3">
+                                {Array.from({ length: 5 }).map((_, index) => (
+                                    <div key={index} className="h-20 rounded-xl bg-white/5 animate-pulse" />
+                                ))}
+                            </div>
+                        ) : notesError ? (
+                            <div className="text-center py-16 text-gray-500 space-y-3">
+                                <p>{notesError}</p>
+                                <button
+                                    onClick={loadNotes}
+                                    className="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm hover:bg-purple-700 transition"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        ) : notes.length === 0 ? (
                             <div className="text-center py-16 text-gray-600">
                                 <FileText size={40} className="mx-auto mb-3 opacity-20" />
                                 <p className="text-sm">
@@ -254,7 +318,7 @@ export default function Notes() {
                                 )}
                             </div>
                         ) : (
-                            notes.map(note => (
+                            sortedNotes.map(note => (
                                 <NoteCard
                                     key={note.id}
                                     note={note}
@@ -267,11 +331,13 @@ export default function Notes() {
                 </div>
 
                 {/* ── Right Panel ── */}
-                <NoteEditor
-                    note={selectedNote}
-                    onUpdated={handleUpdated}
-                    onDeleted={handleDeleted}
-                />
+                <div className="flex flex-col">
+                    <NoteEditor
+                        note={selectedNote}
+                        onUpdated={handleUpdated}
+                        onDeleted={handleDeleted}
+                    />
+                </div>
             </div>
         </div>
     );

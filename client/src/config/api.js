@@ -1,1 +1,2 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const rawApiBase = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = rawApiBase ? rawApiBase.replace(/\/+$/, '') : '/api';

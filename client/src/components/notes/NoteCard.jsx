@@ -13,7 +13,20 @@ function timeAgo(dateStr) {
     return `${days} day${days > 1 ? 's' : ''} ago`;
 }
 
+function getNotePreview(note) {
+    const raw = note.preview || note.content || '';
+    const sanitized = raw
+        .replace(/([#>*_`~\[\]\(\)])/g, '')
+        .replace(/\n+/g, ' ')
+        .trim();
+    if (!sanitized) {
+        return 'No content...';
+    }
+    return sanitized.length > 90 ? `${sanitized.slice(0, 90)}...` : sanitized;
+}
+
 export default function NoteCard({ note, isActive, onClick }) {
+    const preview = getNotePreview(note);
     return (
         <div
             onClick={onClick}
@@ -32,7 +45,7 @@ export default function NoteCard({ note, isActive, onClick }) {
             </div>
 
             <p className="text-gray-500 text-xs mt-1.5 line-clamp-1">
-                {note.preview || 'No content...'}
+                {preview}
             </p>
 
             <div className="flex items-center gap-2 mt-2.5 flex-wrap">

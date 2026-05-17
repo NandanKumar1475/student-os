@@ -85,6 +85,8 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
     const [tags, setTags] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [prevNoteId, setPrevNoteId] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const [statusLabel, setStatusLabel] = useState('Saved');
     const [mode, setMode] = useState('write'); // 'write' | 'preview' | 'split'
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showSlash, setShowSlash] = useState(false);
@@ -97,19 +99,30 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
     const autoSaveTimer = useRef(null);
     const slashPos = useRef(null);
 
-    // Sync state from prop
-    if (note && note.id !== prevNoteId) {
-        setPrevNoteId(note.id);
-        setTitle(note.title || '');
-        setContent(note.content || '');
-        setTags(note.tags || []);
-        setDirty(false);
-        setHistory([note.content || '']);
-        setHistoryIdx(0);
-    }
-    if (!note && prevNoteId !== null) {
-        setPrevNoteId(null);
-    }
+    useEffect(() => {
+        if (!note) {
+            setPrevNoteId(null);
+            setTitle('');
+            setContent('');
+            setTags([]);
+            setDirty(false);
+            setHistory([]);
+            setHistoryIdx(-1);
+            setStatusLabel('Saved');
+            return;
+        }
+
+        if (note.id !== prevNoteId) {
+            setPrevNoteId(note.id);
+            setTitle(note.title || '');
+            setContent(note.content || '');
+            setTags(note.tags || []);
+            setDirty(false);
+            setHistory([note.content || '']);
+            setHistoryIdx(0);
+            setStatusLabel('Saved');
+        }
+    }, [note, prevNoteId]);
 
     const pushHistory = useCallback((val) => {
         const newHist = history.slice(0, historyIdx + 1);
@@ -197,6 +210,7 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
         setContent(val);
         pushHistory(val);
         setDirty(true);
+        setStatusLabel('Unsaved changes');
 
         // Detect slash command
         const cursorPos = e.target.selectionStart;
@@ -239,25 +253,37 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
         if (!note) return;
         if (!title.trim()) return toast.error('Title is required');
         try {
+            setSaving(true);
+            setStatusLabel('Saving...');
             clearTimeout(autoSaveTimer.current);
             await noteService.update(note.id, { title, content, tags });
             toast.success('Saved!');
             setDirty(false);
+            setStatusLabel('Saved');
             onUpdated();
-        } catch {
+        } catch (error) {
+            console.error('Save failed', error);
+            setStatusLabel('Save failed');
             toast.error('Failed to save');
+        } finally {
+            setSaving(false);
         }
     }, [note, title, content, tags, onUpdated]);
 
     // ── Auto-save (3 seconds after last edit) ──
     useEffect(() => {
         if (!dirty || !note) return;
+        setStatusLabel('Saving...');
         autoSaveTimer.current = setTimeout(async () => {
             try {
                 await noteService.update(note.id, { title, content, tags });
                 setDirty(false);
+                setStatusLabel('Saved');
                 onUpdated();
-            } catch { /* silent */ }
+            } catch (error) {
+                console.error('Auto-save failed', error);
+                setStatusLabel('Auto-save failed');
+            }
         }, 3000);
         return () => clearTimeout(autoSaveTimer.current);
     }, [dirty, title, content, tags, note, onUpdated]);
@@ -291,16 +317,35 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
     }, [handleSave, wrapSelection, undo, redo]);
 
     const handlePin = async () => {
-        await noteService.togglePin(note.id);
-        toast.success(note.pinned ? 'Unpinned' : 'Pinned');
-        onUpdated();
+        if (!note) return;
+        try {
+            setSaving(true);
+            await noteService.togglePin(note.id);
+            toast.success(note.pinned ? 'Unpinned' : 'Pinned');
+            onUpdated();
+        } catch (error) {
+            console.error('Pin toggle failed', error);
+            toast.error('Failed to update pin');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleDelete = async () => {
+        if (!note) return;
         if (!confirm('Delete this note permanently?')) return;
-        await noteService.delete(note.id);
-        toast.success('Note deleted');
-        onDeleted();
+
+        try {
+            setSaving(true);
+            await noteService.delete(note.id);
+            toast.success('Note deleted');
+            onDeleted();
+        } catch (error) {
+            console.error('Delete failed', error);
+            toast.error('Failed to delete note');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleCopy = () => {
@@ -349,17 +394,20 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 ml-3 shrink-0">
-                    {dirty && (
-                        <button onClick={handleSave}
-                            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg
-                                       bg-purple-600 hover:bg-purple-700 text-white transition
-                                       animate-pulse">
-                            <Save size={12} /> Save
-                        </button>
-                    )}
-                    {!dirty && note && (
-                        <span className="text-[10px] text-green-500/60 px-2">✓ Saved</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                    <span className={`text-[10px] ${saving ? 'text-slate-300' : dirty ? 'text-yellow-300' : 'text-green-500/60'} px-2`}>
+                        {statusLabel}
+                    </span>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving || !dirty}
+                        className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg transition ${saving || !dirty
+                            ? 'bg-white/10 text-slate-400 cursor-not-allowed'
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'}`}
+                    >
+                        <Save size={12} /> Save
+                    </button>
+                </div>
                     <button onClick={handlePin}
                         className="text-gray-500 hover:text-purple-400 transition p-1.5"
                         title={note.pinned ? 'Unpin' : 'Pin'}>
