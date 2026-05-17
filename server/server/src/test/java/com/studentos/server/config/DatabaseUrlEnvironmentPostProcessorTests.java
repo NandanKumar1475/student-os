@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.mock.env.MockEnvironment;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 class DatabaseUrlEnvironmentPostProcessorTests {
 
     private final DatabaseUrlEnvironmentPostProcessor processor = new DatabaseUrlEnvironmentPostProcessor();
@@ -33,5 +35,28 @@ class DatabaseUrlEnvironmentPostProcessorTests {
         assertThat(environment.getProperty("spring.datasource.url")).isNull();
         assertThat(environment.getProperty("DATABASE_URL"))
                 .isEqualTo("jdbc:postgresql://host.example.com:5432/student_os");
+    }
+
+    @Test
+    void failsClearlyWhenProductionDatabaseUrlIsMissing() {
+        MockEnvironment environment = new MockEnvironment()
+                .withProperty("spring.profiles.active", "prod");
+        environment.setActiveProfiles("prod");
+
+        assertThatThrownBy(() -> processor.postProcessEnvironment(environment, new SpringApplication()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Production database URL is missing");
+    }
+
+    @Test
+    void failsClearlyWhenProductionDatabaseUrlIsUnsupported() {
+        MockEnvironment environment = new MockEnvironment()
+                .withProperty("DATABASE_URL", "mysql://user:pass@host.example.com:3306/student_os")
+                .withProperty("spring.profiles.active", "prod");
+        environment.setActiveProfiles("prod");
+
+        assertThatThrownBy(() -> processor.postProcessEnvironment(environment, new SpringApplication()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Production database URL must start");
     }
 }

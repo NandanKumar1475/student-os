@@ -23,11 +23,23 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
         String databaseUrl = environment.getProperty("DATABASE_URL");
         String rawUrl = hasResolvedText(datasourceUrl) ? datasourceUrl : databaseUrl;
 
-        if (!StringUtils.hasText(rawUrl) || rawUrl.startsWith("jdbc:")) {
+        if (!StringUtils.hasText(rawUrl)) {
+            if (environment.matchesProfiles("prod")) {
+                throw new IllegalStateException(
+                        "Production database URL is missing. Set DATABASE_URL or SPRING_DATASOURCE_URL on the backend service.");
+            }
+            return;
+        }
+
+        if (rawUrl.startsWith("jdbc:")) {
             return;
         }
 
         if (!rawUrl.startsWith("postgres://") && !rawUrl.startsWith("postgresql://")) {
+            if (environment.matchesProfiles("prod")) {
+                throw new IllegalStateException(
+                        "Production database URL must start with jdbc:postgresql://, postgres://, or postgresql://.");
+            }
             return;
         }
 
