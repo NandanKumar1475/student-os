@@ -11,7 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "notes")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

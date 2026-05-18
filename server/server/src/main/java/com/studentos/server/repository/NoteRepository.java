@@ -10,9 +10,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
+
+    // Override findById to eagerly load tags (consistent with other queries)
+    @Override
+    @EntityGraph(attributePaths = "tags")
+    Optional<Note> findById(Long id);
 
     @EntityGraph(attributePaths = "tags")
     List<Note> findByUserIdOrderByPinnedDescUpdatedAtDesc(Long userId);
