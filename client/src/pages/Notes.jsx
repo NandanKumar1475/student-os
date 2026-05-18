@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Search, FileText, Hash, X, Filter } from 'lucide-react';
 import { noteService } from '../services/noteService';
-import { gamificationService } from '../services/gamificationService';
 import NoteCard from '../components/notes/NoteCard';
 import NoteEditor from '../components/notes/NoteEditor';
 import toast from 'react-hot-toast';

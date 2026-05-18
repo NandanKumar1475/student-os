@@ -39,9 +39,9 @@ const RegisterPage = () => {
             <Sparkles size={16} className="text-cyan-200" />
             Start your Student OS system
           </div>
-          <h1 className="mt-6 text-5xl font-black tracking-tight text-white">Create an account that feels like a launchpad.</h1>
+          <h1 className="mt-6 text-5xl font-black tracking-tight text-white">Build a study system you can trust.</h1>
           <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
-            Set up once, then let your targets, tasks, and placement prep stay organized in one calm premium workspace.
+            Bring assignments, skills, notes, and placement prep into one place so every study session has a purpose.
           </p>
           <div className="mt-8 rounded-[28px] border border-white/10 bg-slate-950/25 p-5">
             <div className="flex items-center gap-3 text-orange-200">
@@ -55,7 +55,7 @@ const RegisterPage = () => {
           <div className="mb-8">
             <p className="text-sm uppercase tracking-[0.35em] text-cyan-100/55">Register</p>
             <h2 className="mt-2 text-3xl font-bold text-white">Create your space</h2>
-            <p className="mt-2 text-sm text-slate-400">Join and start tracking with a cleaner premium UI.</p>
+            <p className="mt-2 text-sm text-slate-400">Start with your goals, then build momentum one action at a time.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

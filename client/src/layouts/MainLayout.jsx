@@ -121,7 +121,7 @@ const MainLayout = ({ children }) => {
               <h1 className="text-xl font-black tracking-tight">
                 Student <span className="text-cyan-200">OS</span>
               </h1>
-              <p className="text-sm text-slate-400">A clear system for ambitious students</p>
+              <p className="text-sm text-slate-400">Study, skills, and placements in one plan</p>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ const MainLayout = ({ children }) => {
               </button>
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Student command center</p>
-                <h2 className="mt-1 text-2xl font-black tracking-tight text-white">Easy to use. Hard to ignore.</h2>
+              <h2 className="mt-1 text-2xl font-black tracking-tight text-white">Plan today. Build tomorrow.</h2>
               </div>
             </div>
 
@@ -252,7 +252,7 @@ const MainLayout = ({ children }) => {
                                   {notification.title || 'Notification'}
                                 </p>
                                 <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">
-                                  {notification.body || 'No details available.'}
+                                  {notification.body || 'No message attached.'}
                                 </p>
                               </div>
                             </div>

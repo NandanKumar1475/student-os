@@ -157,7 +157,7 @@ const DashboardPage = () => {
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/55">Focused target</p>
               <h2 className="mt-2 text-2xl font-bold text-white">
-                {focusedTarget ? focusedTarget.title : 'No target selected'}
+                {focusedTarget ? focusedTarget.title : 'Choose a focus target'}
               </h2>
             </div>
             <span className="rounded-full border border-emerald-300/15 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
@@ -192,7 +192,7 @@ const DashboardPage = () => {
             </>
           ) : (
             <p className="mt-6 text-sm leading-6 text-slate-400">
-              Pick a focused target from the Targets page and it will become your main dashboard anchor.
+              Pick one priority from Targets so your daily work has a clear direction.
             </p>
           )}
         </div>

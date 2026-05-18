@@ -50,9 +50,9 @@ const ProfilePage = () => {
           <UserCircle2 size={30} />
         </div>
         <p className="mt-6 text-xs uppercase tracking-[0.35em] text-cyan-100/55">Profile settings</p>
-        <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Make your workspace feel personal.</h1>
+        <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Shape your student roadmap.</h1>
         <p className="mt-4 text-sm leading-7 text-slate-300">
-          Keep your student details, career direction, and learning identity up to date so the app can feel more useful and more tailored.
+          Keep your academic context and career direction clear so targets, tasks, and job matches stay relevant to you.
         </p>
 
         <div className="mt-8 space-y-3">

@@ -16,7 +16,7 @@ function timeAgo(dateStr) {
 function getNotePreview(note) {
     const raw = note.preview || note.content || '';
     const sanitized = raw
-        .replace(/([#>*_`~\[\]\(\)])/g, '')
+        .replace(/([#>*_`~[\]()])/g, '')
         .replace(/\n+/g, ' ')
         .trim();
     if (!sanitized) {

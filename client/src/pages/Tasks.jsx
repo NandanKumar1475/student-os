@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Plus, CheckSquare } from 'lucide-react';
 import { taskService } from '../services/taskService';
@@ -17,6 +18,7 @@ const StatCard = ({ label, value }) => (
 );
 
 export default function Tasks() {
+    const [searchParams] = useSearchParams();
     const [activeTab, setActiveTab] = useState('Today');
     const [allTasks, setAllTasks] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -127,6 +129,19 @@ export default function Tasks() {
     }).length;
 
     const completedCount = allTasks.filter(t => t.completed).length;
+    const searchQuery = searchParams.get('search')?.trim().toLowerCase() || '';
+    const visibleTasks = searchQuery
+        ? allTasks.filter((task) => {
+            const haystack = [
+                task.title,
+                task.description,
+                task.targetTitle,
+                task.priority,
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            return haystack.includes(searchQuery);
+        })
+        : tasks;
 
     const completionRate =
         allTasks.length > 0
@@ -155,7 +170,7 @@ export default function Tasks() {
 
             {/* STATS */}
             <div className="grid grid-cols-4 gap-4">
-                <StatCard label="Today's Tasks" value={tasks.length} />
+                <StatCard label={searchQuery ? 'Search Results' : "Today's Tasks"} value={visibleTasks.length} />
                 <StatCard label="Upcoming" value={upcomingCount} />
                 <StatCard label="Completed" value={completedCount} />
                 <StatCard label="Completion %" value={`${completionRate}%`} />
@@ -180,10 +195,12 @@ export default function Tasks() {
 
             {/* TASK LIST */}
             <div className="space-y-2">
-                {tasks.length === 0 ? (
-                    <p className="text-gray-400">No tasks</p>
+                {visibleTasks.length === 0 ? (
+                    <p className="text-gray-400">
+                        {searchQuery ? `No tasks match "${searchParams.get('search')}"` : 'No tasks'}
+                    </p>
                 ) : (
-                    tasks.map(task => (
+                    visibleTasks.map(task => (
                         <TaskCard
                             key={task.id}
                             task={task}

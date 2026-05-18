@@ -7,11 +7,15 @@ import com.studentos.server.dto.TaskRequestDTO;
 import com.studentos.server.entity.Target;
 import com.studentos.server.entity.Task;
 import com.studentos.server.entity.User;
+import com.studentos.server.enums.Priority;
+import com.studentos.server.exception.BadRequestException;
+import com.studentos.server.exception.ResourceNotFoundException;
 import com.studentos.server.repository.TargetRepository;
 import com.studentos.server.repository.TaskRepository;
 import com.studentos.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,42 +29,51 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TargetRepository targetRepository;
 
-    public List<TaskDTO> getAllTasks(Long userId) {
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getAllTasks(String email) {
+        Long userId = getUserByEmail(email).getId();
         return taskRepository.findByUserIdOrderByDueDateAscDueTimeAsc(userId)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<TaskDTO> getTodayTasks(Long userId) {
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getTodayTasks(String email) {
+        Long userId = getUserByEmail(email).getId();
         return taskRepository.findByUserIdAndDueDateOrderByDueTimeAsc(userId, LocalDate.now())
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<TaskDTO> getUpcomingTasks(Long userId) {
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getUpcomingTasks(String email) {
+        Long userId = getUserByEmail(email).getId();
         return taskRepository.findByUserIdAndDueDateAfterOrderByDueDateAsc(userId, LocalDate.now())
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<TaskDTO> getCompletedTasks(Long userId) {
+    @Transactional(readOnly = true)
+    public List<TaskDTO> getCompletedTasks(String email) {
+        Long userId = getUserByEmail(email).getId();
         return taskRepository.findByUserIdAndCompletedOrderByDueDateAsc(userId, true)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public TaskDTO createTask(Long userId, TaskRequestDTO request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public TaskDTO createTask(String email, TaskRequestDTO request) {
+        User user = getUserByEmail(email);
+        validateTitle(request.getTitle());
 
         Target target = null;
         if (request.getTargetId() != null) {
-            target = targetRepository.findById(request.getTargetId())
-                    .orElse(null);
+            target = targetRepository.findByIdAndUserId(request.getTargetId(), user.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Target not found"));
         }
 
         Task task = Task.builder()
                 .user(user)
                 .target(target)
-                .title(request.getTitle())
+                .title(request.getTitle().trim())
                 .description(request.getDescription())
-                .priority(request.getPriority())
+                .priority(request.getPriority() != null ? request.getPriority() : Priority.MEDIUM)
                 .dueDate(request.getDueDate())
                 .dueTime(request.getDueTime())
                 .completed(false)
@@ -69,21 +82,28 @@ public class TaskService {
         return toDTO(taskRepository.save(task));
     }
 
-    public TaskDTO updateTask(Long userId, Long taskId, TaskRequestDTO request) {
+    @Transactional
+    public TaskDTO updateTask(String email, Long taskId, TaskRequestDTO request) {
+        User user = getUserByEmail(email);
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Task not found");
+        }
 
         Target target = null;
         if (request.getTargetId() != null) {
-            target = targetRepository.findById(request.getTargetId()).orElse(null);
+            target = targetRepository.findByIdAndUserId(request.getTargetId(), user.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Target not found"));
         }
 
-        task.setTitle(request.getTitle());
+        if (request.getTitle() != null) {
+            validateTitle(request.getTitle());
+            task.setTitle(request.getTitle().trim());
+        }
         task.setDescription(request.getDescription());
-        task.setPriority(request.getPriority());
+        task.setPriority(request.getPriority() != null ? request.getPriority() : task.getPriority());
         task.setDueDate(request.getDueDate());
         task.setDueTime(request.getDueTime());
         task.setTarget(target);
@@ -91,23 +111,29 @@ public class TaskService {
         return toDTO(taskRepository.save(task));
     }
 
-    public TaskDTO toggleComplete(Long userId, Long taskId) {
+    @Transactional
+    public TaskDTO toggleComplete(String email, Long taskId) {
+        User user = getUserByEmail(email);
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Task not found");
+        }
 
-        task.setCompleted(!task.getCompleted());
+        task.setCompleted(!Boolean.TRUE.equals(task.getCompleted()));
         return toDTO(taskRepository.save(task));
     }
 
-    public void deleteTask(Long userId, Long taskId) {
+    @Transactional
+    public void deleteTask(String email, Long taskId) {
+        User user = getUserByEmail(email);
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        if (!task.getUser().getId().equals(userId))
-            throw new RuntimeException("Unauthorized");
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Task not found");
+        }
 
         taskRepository.delete(task);
     }
@@ -124,5 +150,16 @@ public class TaskService {
                 .dueTime(task.getDueTime())
                 .completed(task.getCompleted())
                 .build();
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private void validateTitle(String title) {
+        if (title == null || title.trim().isBlank()) {
+            throw new BadRequestException("Task title is required");
+        }
     }
 }

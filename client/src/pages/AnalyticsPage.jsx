@@ -173,7 +173,7 @@ const AnalyticsPage = () => {
           </div>
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-300/20 bg-indigo-400/10 px-3 py-1 text-xs text-indigo-100">
             <BarChart3 className="h-4 w-4" />
-            Live dashboard intelligence
+            Live study insights
           </div>
         </div>
       </GlassPanel>

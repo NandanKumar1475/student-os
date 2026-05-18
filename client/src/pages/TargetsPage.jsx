@@ -53,9 +53,9 @@ const TargetsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Goals workspace</p>
-          <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Targets that stay visible.</h1>
-          <p className="mt-2 text-sm text-slate-400">A clearer, more premium space for planning what matters next.</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-cyan-100/55">Goal workspace</p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight text-white">Turn big goals into weekly action.</h1>
+          <p className="mt-2 text-sm text-slate-400">Plan exams, projects, skills, and placement prep without losing the next step.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
