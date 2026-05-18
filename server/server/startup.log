@@ -1,0 +1,133 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.studentos:server >------------------------
+[INFO] Building server 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.5:run (default-cli) > test-compile @ server >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ server ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ server ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ server ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ server ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.5:run (default-cli) < test-compile @ server <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.5:run (default-cli) @ server ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-05-18T08:08:08.839+05:30  INFO 28236 --- [  restartedMain] com.studentos.server.ServerApplication   : Starting ServerApplication using Java 21.0.10 with PID 28236 (c:\Users\NANDAN\Desktop\student-os\server\server\target\classes started by NANDAN in c:\Users\NANDAN\Desktop\student-os\server\server)
+2026-05-18T08:08:08.845+05:30  INFO 28236 --- [  restartedMain] com.studentos.server.ServerApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-18T08:08:08.929+05:30  INFO 28236 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-18T08:08:08.930+05:30  INFO 28236 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-18T08:08:10.913+05:30  INFO 28236 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-18T08:08:11.195+05:30  INFO 28236 --- [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 271 ms. Found 10 JPA repository interfaces.
+2026-05-18T08:08:12.740+05:30  INFO 28236 --- [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-18T08:08:12.780+05:30  INFO 28236 --- [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-18T08:08:12.781+05:30  INFO 28236 --- [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-05-18T08:08:12.914+05:30  INFO 28236 --- [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-18T08:08:12.916+05:30  INFO 28236 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3985 ms
+2026-05-18T08:08:13.166+05:30  INFO 28236 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-18T08:08:13.532+05:30  INFO 28236 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:studentos user=SA
+2026-05-18T08:08:13.534+05:30  INFO 28236 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-18T08:08:13.552+05:30  INFO 28236 --- [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:studentos'
+2026-05-18T08:08:13.855+05:30  INFO 28236 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-18T08:08:13.996+05:30  INFO 28236 --- [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-05-18T08:08:14.070+05:30  INFO 28236 --- [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-18T08:08:14.553+05:30  INFO 28236 --- [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-18T08:08:17.000+05:30  INFO 28236 --- [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: drop table if exists achievements cascade 
+Hibernate: drop table if exists daily_activities cascade 
+Hibernate: drop table if exists job_postings cascade 
+Hibernate: drop table if exists note_tags cascade 
+Hibernate: drop table if exists notes cascade 
+Hibernate: drop table if exists notifications cascade 
+Hibernate: drop table if exists targets cascade 
+Hibernate: drop table if exists tasks cascade 
+Hibernate: drop table if exists user_achievements cascade 
+Hibernate: drop table if exists users cascade 
+Hibernate: drop table if exists xp_transactions cascade 
+Hibernate: create table achievements (condition_value integer not null, sort_order integer, xp_reward integer not null, id bigint generated by default as identity, category varchar(255) not null check (category in ('STREAK','TASK','NOTE','XP','STUDY','POMODORO','SPECIAL')), code varchar(255) not null unique, condition_type varchar(255) not null, description varchar(255), icon varchar(255), rarity varchar(255) not null check (rarity in ('COMMON','UNCOMMON','RARE','EPIC','LEGENDARY')), title varchar(255) not null, primary key (id))
+Hibernate: create table daily_activities (activity_date date not null, intensity integer, notes_created integer, pomodoro_sessions integer, streak_counted boolean, study_minutes integer, tasks_completed integer, xp_earned integer, first_activity_at timestamp(6), id bigint generated by default as identity, last_activity_at timestamp(6), user_id bigint not null, primary key (id), unique (user_id, activity_date))
+Hibernate: create table job_postings (active boolean not null, created_at timestamp(6), id bigint generated by default as identity, posted_by_id bigint, updated_at timestamp(6), company varchar(255), description TEXT, external_url varchar(255), location varchar(255), title varchar(255) not null, type varchar(255) not null check (type in ('JOB','HIRING_DRIVE','RESOURCE')), primary key (id))
+Hibernate: create table note_tags (note_id bigint not null, tag varchar(255))
+Hibernate: create table notes (pinned boolean not null, created_at timestamp(6), id bigint generated by default as identity, updated_at timestamp(6), user_id bigint not null, content TEXT, preview TEXT, title varchar(255) not null, primary key (id))
+Hibernate: create table notifications (is_read boolean not null, created_at timestamp(6), id bigint generated by default as identity, user_id bigint not null, body TEXT, link varchar(255), title varchar(255), primary key (id))
+Hibernate: create table targets (deadline date, is_focused boolean not null, progress_percentage integer, created_at timestamp(6), id bigint generated by default as identity, updated_at timestamp(6), user_id bigint not null, description varchar(255), priority varchar(255) not null check (priority in ('HIGH','MEDIUM','LOW')), status varchar(255) not null check (status in ('ACTIVE','COMPLETED','PAUSED')), title varchar(255) not null, type varchar(255) not null check (type in ('EXAM','JOB','SKILL','CUSTOM')), primary key (id))
+Hibernate: create table tasks (completed boolean not null, due_date date, due_time time(6), created_at timestamp(6), id bigint generated by default as identity, target_id bigint, updated_at timestamp(6), user_id bigint not null, description varchar(255), priority varchar(255) not null check (priority in ('HIGH','MEDIUM','LOW')), title varchar(255) not null, primary key (id))
+Hibernate: create table user_achievements (seen boolean, achievement_id bigint not null, id bigint generated by default as identity, unlocked_at timestamp(6), user_id bigint not null, primary key (id), unique (user_id, achievement_id))
+Hibernate: create table users (year_of_study integer, created_at timestamp(6), id bigint generated by default as identity, updated_at timestamp(6), avatar_url varchar(255), branch varchar(255), career_goal varchar(255), college varchar(255), email varchar(255) not null unique, name varchar(255) not null, password varchar(255) not null, role varchar(255) not null check (role in ('USER','ADMIN')), primary key (id))
+Hibernate: create table xp_transactions (amount integer not null, created_at timestamp(6), id bigint generated by default as identity, user_id bigint not null, description varchar(255), source varchar(255) not null check (source in ('TASK_COMPLETE','NOTE_CREATE','STUDY_SESSION','POMODORO','STREAK_BONUS','ACHIEVEMENT','DAILY_LOGIN','TARGET_COMPLETE','CHALLENGE_COMPLETE')), primary key (id))
+Hibernate: alter table if exists daily_activities add constraint FKsmd0v2wiso3poon431f2wiaw1 foreign key (user_id) references users
+Hibernate: alter table if exists job_postings add constraint FKjc29r81bmxdgbqxytbimrme9p foreign key (posted_by_id) references users
+Hibernate: alter table if exists note_tags add constraint FKb15yxop81senc5xs5tjrsy4k4 foreign key (note_id) references notes
+Hibernate: alter table if exists notes add constraint FKechaouoa6kus6k1dpix1u91c foreign key (user_id) references users
+Hibernate: alter table if exists notifications add constraint FK9y21adhxn0ayjhfocscqox7bh foreign key (user_id) references users
+Hibernate: alter table if exists targets add constraint FKhvcb7kler6b0n9x0gcax2ykpj foreign key (user_id) references users
+Hibernate: alter table if exists tasks add constraint FK4c98g1iacise4jhu0chvpgvpq foreign key (target_id) references targets
+Hibernate: alter table if exists tasks add constraint FK6s1ob9k4ihi75xbxe2w0ylsdh foreign key (user_id) references users
+Hibernate: alter table if exists user_achievements add constraint FK8ipvec6cs8t3g8515thtlsxuf foreign key (achievement_id) references achievements
+Hibernate: alter table if exists user_achievements add constraint FK6vt5fpu0uta41vny1x6vpk45k foreign key (user_id) references users
+Hibernate: alter table if exists xp_transactions add constraint FKnow46h8nu701itd5e03slgeyq foreign key (user_id) references users
+2026-05-18T08:08:17.164+05:30  INFO 28236 --- [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-18T08:08:18.266+05:30  INFO 28236 --- [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-18T08:08:20.448+05:30  INFO 28236 --- [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-05-18T08:08:20.564+05:30  INFO 28236 --- [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@145eb1d9, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4f2c5add, org.springframework.security.web.context.SecurityContextHolderFilter@7345fa21, org.springframework.security.web.header.HeaderWriterFilter@61c14608, org.springframework.web.filter.CorsFilter@54cfd1c6, org.springframework.security.web.authentication.logout.LogoutFilter@4c3b3149, com.studentos.server.security.JwtAuthenticationFilter@60b23dd4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@35051dff, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7e2f69a5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1ea07e70, org.springframework.security.web.session.SessionManagementFilter@5eaee3f3, org.springframework.security.web.access.ExceptionTranslationFilter@1b3e22a9, org.springframework.security.web.access.intercept.AuthorizationFilter@3f9ccf6d]
+2026-05-18T08:08:21.355+05:30  WARN 28236 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-05-18T08:08:21.581+05:30  WARN 28236 --- [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-05-18T08:08:21.586+05:30  INFO 28236 --- [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+Hibernate: drop table if exists achievements cascade 
+Hibernate: drop table if exists daily_activities cascade 
+Hibernate: drop table if exists job_postings cascade 
+Hibernate: drop table if exists note_tags cascade 
+Hibernate: drop table if exists notes cascade 
+Hibernate: drop table if exists notifications cascade 
+Hibernate: drop table if exists targets cascade 
+Hibernate: drop table if exists tasks cascade 
+Hibernate: drop table if exists user_achievements cascade 
+Hibernate: drop table if exists users cascade 
+Hibernate: drop table if exists xp_transactions cascade 
+2026-05-18T08:08:21.614+05:30  WARN 28236 --- [  restartedMain] o.s.b.f.support.DisposableBeanAdapter    : Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2026-05-18T08:08:21.628+05:30  INFO 28236 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-18T08:08:21.632+05:30  INFO 28236 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-05-18T08:08:21.659+05:30  INFO 28236 --- [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-05-18T08:08:21.696+05:30 ERROR 28236 --- [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  21.338 s
+[INFO] Finished at: 2026-05-18T08:08:21+05:30
+[INFO] ------------------------------------------------------------------------

@@ -28,7 +28,10 @@ public class User {
 
     private String college;
     private String branch;
+
+    @Column(name = "year_of_study")
     private Integer year;
+
     private String careerGoal;
     private String avatarUrl;
 
