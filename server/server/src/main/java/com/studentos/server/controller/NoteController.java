@@ -3,6 +3,7 @@ import com.studentos.server.dto.NoteDTO;
 import com.studentos.server.dto.NoteRequestDTO;
 import com.studentos.server.service.NoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,10 @@ public class NoteController {
     public ResponseEntity<List<NoteDTO>> getAllNotes(
             @AuthenticationPrincipal UserDetails userDetails) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok(noteService.getAllNotes(userDetails.getUsername()));
     }
 
@@ -30,6 +35,10 @@ public class NoteController {
     public ResponseEntity<NoteDTO> getNote(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         return ResponseEntity.ok(noteService.getNoteById(userDetails.getUsername(), id));
     }
@@ -40,6 +49,10 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String query) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok(noteService.searchNotes(userDetails.getUsername(), query));
     }
 
@@ -49,6 +62,10 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String tag) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok(noteService.getNotesByTag(userDetails.getUsername(), tag));
     }
 
@@ -56,6 +73,10 @@ public class NoteController {
     @GetMapping("/tags")
     public ResponseEntity<List<String>> getAllTags(
             @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         return ResponseEntity.ok(noteService.getAllTags(userDetails.getUsername()));
     }
@@ -65,6 +86,10 @@ public class NoteController {
     public ResponseEntity<NoteDTO> createNote(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody NoteRequestDTO request) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         return ResponseEntity.ok(noteService.createNote(userDetails.getUsername(), request));
     }
@@ -76,6 +101,10 @@ public class NoteController {
             @PathVariable Long id,
             @RequestBody NoteRequestDTO request) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok(noteService.updateNote(userDetails.getUsername(), id, request));
     }
 
@@ -85,6 +114,10 @@ public class NoteController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return ResponseEntity.ok(noteService.togglePin(userDetails.getUsername(), id));
     }
 
@@ -93,6 +126,10 @@ public class NoteController {
     public ResponseEntity<Void> deleteNote(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         noteService.deleteNote(userDetails.getUsername(), id);
         return ResponseEntity.noContent().build();
