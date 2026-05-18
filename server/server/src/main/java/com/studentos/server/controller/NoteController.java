@@ -1,11 +1,11 @@
 package com.studentos.server.controller;
 import com.studentos.server.dto.NoteDTO;
 import com.studentos.server.dto.NoteRequestDTO;
-import com.studentos.server.security.UserPrincipal;
 import com.studentos.server.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,90 +20,81 @@ public class NoteController {
     // ✅ Get all notes
     @GetMapping
     public ResponseEntity<List<NoteDTO>> getAllNotes(
-            @AuthenticationPrincipal UserPrincipal user) {
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        Long userId = user.getId(); // cleaner
-        return ResponseEntity.ok(noteService.getAllNotes(userId));
+        return ResponseEntity.ok(noteService.getAllNotes(userDetails.getUsername()));
     }
 
     // ✅ Get single note
     @GetMapping("/{id}")
     public ResponseEntity<NoteDTO> getNote(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.getNoteById(userId, id));
+        return ResponseEntity.ok(noteService.getNoteById(userDetails.getUsername(), id));
     }
 
     // ✅ Search notes
     @GetMapping("/search")
     public ResponseEntity<List<NoteDTO>> searchNotes(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String query) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.searchNotes(userId, query));
+        return ResponseEntity.ok(noteService.searchNotes(userDetails.getUsername(), query));
     }
 
     // ✅ Notes by tag
     @GetMapping("/tag/{tag}")
     public ResponseEntity<List<NoteDTO>> getNotesByTag(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String tag) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.getNotesByTag(userId, tag));
+        return ResponseEntity.ok(noteService.getNotesByTag(userDetails.getUsername(), tag));
     }
 
     // ✅ Get all tags
     @GetMapping("/tags")
     public ResponseEntity<List<String>> getAllTags(
-            @AuthenticationPrincipal UserPrincipal user) {
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.getAllTags(userId));
+        return ResponseEntity.ok(noteService.getAllTags(userDetails.getUsername()));
     }
 
     // ✅ Create note
     @PostMapping
     public ResponseEntity<NoteDTO> createNote(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody NoteRequestDTO request) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.createNote(userId, request));
+        return ResponseEntity.ok(noteService.createNote(userDetails.getUsername(), request));
     }
 
     // ✅ Update note
     @PutMapping("/{id}")
     public ResponseEntity<NoteDTO> updateNote(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id,
             @RequestBody NoteRequestDTO request) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.updateNote(userId, id, request));
+        return ResponseEntity.ok(noteService.updateNote(userDetails.getUsername(), id, request));
     }
 
     // ✅ Toggle pin
     @PatchMapping("/{id}/pin")
     public ResponseEntity<NoteDTO> togglePin(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
 
-        Long userId = user.getId();
-        return ResponseEntity.ok(noteService.togglePin(userId, id));
+        return ResponseEntity.ok(noteService.togglePin(userDetails.getUsername(), id));
     }
 
     // ✅ Delete note
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNote(
-            @AuthenticationPrincipal UserPrincipal user,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id) {
 
-        Long userId = user.getId();
-        noteService.deleteNote(userId, id);
+        noteService.deleteNote(userDetails.getUsername(), id);
         return ResponseEntity.noContent().build();
     }
 }
