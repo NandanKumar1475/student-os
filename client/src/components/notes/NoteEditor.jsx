@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { noteService } from '../../services/noteService';
 import TagInput from './TagInput';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import toast from 'react-hot-toast';
 
 // ── Markdown Preview Renderer ──
@@ -94,6 +95,7 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
     const [slashIndex, setSlashIndex] = useState(0);
     const [history, setHistory] = useState([]);
     const [historyIdx, setHistoryIdx] = useState(-1);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const textareaRef = useRef(null);
     const autoSaveTimer = useRef(null);
@@ -333,39 +335,22 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
 
     const handleDelete = () => {
         if (!note) return;
-        // Non-blocking confirmation via toast — safe on all browsers including iOS Safari
-        toast((t) => (
-            <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium">Delete this note permanently?</span>
-                <div className="flex gap-2">
-                    <button
-                        className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
-                        onClick={async () => {
-                            toast.dismiss(t.id);
-                            try {
-                                setSaving(true);
-                                await noteService.delete(note.id);
-                                toast.success('Note deleted');
-                                onDeleted();
-                            } catch (error) {
-                                console.error('Delete failed', error);
-                                toast.error('Failed to delete note');
-                            } finally {
-                                setSaving(false);
-                            }
-                        }}
-                    >
-                        Delete
-                    </button>
-                    <button
-                        className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
-                        onClick={() => toast.dismiss(t.id)}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        ), { duration: 5000 });
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        setShowDeleteConfirm(false);
+        try {
+            setSaving(true);
+            await noteService.delete(note.id);
+            toast.success('Note deleted');
+            onDeleted();
+        } catch (error) {
+            console.error('Delete failed', error);
+            toast.error('Failed to delete note');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleCopy = () => {
@@ -563,6 +548,18 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
                     <span>Markdown</span>
                 </div>
             </div>
+
+            {/* ── Delete Confirmation Dialog ── */}
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Delete Note"
+                message="This note will be permanently deleted and cannot be recovered."
+                confirmLabel="Delete Note"
+                cancelLabel="Keep it"
+                variant="danger"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+            />
         </div>
     );
 }

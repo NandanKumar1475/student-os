@@ -6,6 +6,7 @@ import { taskService } from '../services/taskService';
 import { gamificationService } from '../services/gamificationService';
 import TaskCard from '../components/tasks/TaskCard';
 import AddTaskModal from '../components/tasks/AddTaskModal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import toast from 'react-hot-toast';
 
 const TABS = ['Today', 'Upcoming', 'Completed'];
@@ -24,6 +25,7 @@ export default function Tasks() {
     const [tasks, setTasks] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editTask, setEditTask] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, taskId: null });
 
     // ✅ USE AFTER DECLARATION
     useEffect(() => {
@@ -77,37 +79,22 @@ export default function Tasks() {
         }
     };
 
-    // 🔥 DELETE (REAL-TIME) — uses toast confirmation, no blocking confirm()
+    // 🔥 DELETE — opens in-app confirm dialog
     const handleDelete = (id) => {
-        toast((t) => (
-            <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium">Delete this task?</span>
-                <div className="flex gap-2">
-                    <button
-                        className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
-                        onClick={async () => {
-                            toast.dismiss(t.id);
-                            try {
-                                await taskService.delete(id);
-                                setTasks(prev => prev.filter(task => task.id !== id));
-                                setAllTasks(prev => prev.filter(task => task.id !== id));
-                                toast.success('Task deleted');
-                            } catch {
-                                toast.error('Delete failed');
-                            }
-                        }}
-                    >
-                        Delete
-                    </button>
-                    <button
-                        className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
-                        onClick={() => toast.dismiss(t.id)}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        ), { duration: 5000 });
+        setDeleteConfirm({ open: true, taskId: id });
+    };
+
+    const confirmDelete = async () => {
+        const id = deleteConfirm.taskId;
+        setDeleteConfirm({ open: false, taskId: null });
+        try {
+            await taskService.delete(id);
+            setTasks(prev => prev.filter(t => t.id !== id));
+            setAllTasks(prev => prev.filter(t => t.id !== id));
+            toast.success('Task deleted');
+        } catch {
+            toast.error('Delete failed');
+        }
     };
 
     // 🔥 ADD + EDIT HANDLER
@@ -241,6 +228,18 @@ export default function Tasks() {
                     />
                 )}
             </AnimatePresence>
+
+            {/* DELETE CONFIRM */}
+            <ConfirmDialog
+                isOpen={deleteConfirm.open}
+                title="Delete Task"
+                message="This task will be permanently removed. You can't undo this."
+                confirmLabel="Delete Task"
+                cancelLabel="Keep it"
+                variant="danger"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteConfirm({ open: false, taskId: null })}
+            />
         </div>
     );
 }

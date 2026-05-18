@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { toggleFocus, deleteTarget } from '../../api/targetApi';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import toast from 'react-hot-toast';
 
 const typeConfig = {
@@ -17,6 +19,7 @@ const statusConfig = {
 const TargetCard = ({ target, onRefresh }) => {
   const type = typeConfig[target.type] || typeConfig.CUSTOM;
   const status = statusConfig[target.status] || statusConfig.ACTIVE;
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const daysLeft = target.deadline
     ? Math.ceil((new Date(target.deadline) - new Date()) / (1000 * 60 * 60 * 24))
@@ -33,35 +36,18 @@ const TargetCard = ({ target, onRefresh }) => {
   };
 
   const handleDelete = () => {
-    // Non-blocking confirmation via toast — safe on all browsers including iOS Safari
-    toast((t) => (
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Delete this target?</span>
-        <div className="flex gap-2">
-          <button
-            className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
-            onClick={async () => {
-              toast.dismiss(t.id);
-              try {
-                await deleteTarget(target.id);
-                toast.success('Target deleted');
-                onRefresh();
-              } catch {
-                toast.error('Failed to delete');
-              }
-            }}
-          >
-            Delete
-          </button>
-          <button
-            className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
-            onClick={() => toast.dismiss(t.id)}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    ), { duration: 5000 });
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteConfirm(false);
+    try {
+      await deleteTarget(target.id);
+      toast.success('Target deleted');
+      onRefresh();
+    } catch {
+      toast.error('Failed to delete');
+    }
   };
 
   // Progress bar color based on percentage
@@ -145,6 +131,18 @@ const TargetCard = ({ target, onRefresh }) => {
           🗑️
         </button>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Target"
+        message="This target and all its progress will be permanently removed."
+        confirmLabel="Delete Target"
+        cancelLabel="Keep it"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };
