@@ -32,15 +32,36 @@ const TargetCard = ({ target, onRefresh }) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this target?')) return;
-    try {
-      await deleteTarget(target.id);
-      toast.success('Target deleted');
-      onRefresh();
-    } catch {
-      toast.error('Failed to delete');
-    }
+  const handleDelete = () => {
+    // Non-blocking confirmation via toast — safe on all browsers including iOS Safari
+    toast((t) => (
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Delete this target?</span>
+        <div className="flex gap-2">
+          <button
+            className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                await deleteTarget(target.id);
+                toast.success('Target deleted');
+                onRefresh();
+              } catch {
+                toast.error('Failed to delete');
+              }
+            }}
+          >
+            Delete
+          </button>
+          <button
+            className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: 5000 });
   };
 
   // Progress bar color based on percentage

@@ -77,21 +77,37 @@ export default function Tasks() {
         }
     };
 
-    // 🔥 DELETE (REAL-TIME)
-    const handleDelete = async (id) => {
-        if (!confirm('Delete this task?')) return;
-
-        try {
-            await taskService.delete(id);
-
-            setTasks(prev => prev.filter(t => t.id !== id));
-            setAllTasks(prev => prev.filter(t => t.id !== id));
-
-            toast.success('Task deleted');
-
-        } catch {
-            toast.error("Delete failed");
-        }
+    // 🔥 DELETE (REAL-TIME) — uses toast confirmation, no blocking confirm()
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Delete this task?</span>
+                <div className="flex gap-2">
+                    <button
+                        className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await taskService.delete(id);
+                                setTasks(prev => prev.filter(task => task.id !== id));
+                                setAllTasks(prev => prev.filter(task => task.id !== id));
+                                toast.success('Task deleted');
+                            } catch {
+                                toast.error('Delete failed');
+                            }
+                        }}
+                    >
+                        Delete
+                    </button>
+                    <button
+                        className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
+                        onClick={() => toast.dismiss(t.id)}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        ), { duration: 5000 });
     };
 
     // 🔥 ADD + EDIT HANDLER

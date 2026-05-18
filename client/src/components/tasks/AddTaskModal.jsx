@@ -127,15 +127,20 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
 
                     {/* TITLE */}
                     <input
+                        id="task-title"
+                        name="title"
                         type="text"
                         placeholder="Task title..."
                         value={form.title}
                         onChange={e => handleChange('title', e.target.value)}
+                        autoComplete="off"
                         className="w-full p-2 rounded-lg bg-gray-800 text-white"
                     />
 
                     {/* DESCRIPTION */}
                     <textarea
+                        id="task-description"
+                        name="description"
                         placeholder="Description..."
                         value={form.description}
                         onChange={e => handleChange('description', e.target.value)}
@@ -144,6 +149,8 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
 
                     {/* PRIORITY */}
                     <select
+                        id="task-priority"
+                        name="priority"
                         value={form.priority}
                         onChange={e => handleChange('priority', e.target.value)}
                         className="w-full p-2 rounded-lg bg-gray-800 text-white"
@@ -155,6 +162,8 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
 
                     {/* TARGET */}
                     <select
+                        id="task-target"
+                        name="targetId"
                         value={form.targetId}
                         onChange={e => handleChange('targetId', e.target.value)}
                         className="w-full p-2 rounded-lg bg-gray-800 text-white"
@@ -170,6 +179,8 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
                     {/* DATE + TIME */}
                     <div className="flex gap-2">
                         <input
+                            id="task-due-date"
+                            name="dueDate"
                             type="date"
                             value={form.dueDate}
                             onChange={e => handleChange('dueDate', e.target.value)}
@@ -177,6 +188,8 @@ export default function AddTaskModal({ onClose, onTaskAdded, editTask }) {
                         />
 
                         <input
+                            id="task-due-time"
+                            name="dueTime"
                             type="time"
                             value={form.dueTime}
                             onChange={e => handleChange('dueTime', e.target.value)}

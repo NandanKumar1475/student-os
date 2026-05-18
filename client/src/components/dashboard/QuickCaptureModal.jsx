@@ -45,13 +45,18 @@ const QuickCaptureModal = ({
 
                 <div className="mt-6 space-y-4">
                   <FloatingInput
+                    id="quick-capture-title"
+                    name="title"
                     label="Title"
                     value={draft.title}
+                    autoComplete="off"
                     onChange={(event) => onDraftChange('title', event.target.value)}
                   />
 
-                  <label className="block">
+                  <label htmlFor="quick-capture-details" className="block">
                     <textarea
+                      id="quick-capture-details"
+                      name="details"
                       value={draft.details}
                       onChange={(event) => onDraftChange('details', event.target.value)}
                       placeholder="Add supporting context, links, or next actions"

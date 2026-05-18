@@ -331,21 +331,41 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
         }
     };
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         if (!note) return;
-        if (!confirm('Delete this note permanently?')) return;
-
-        try {
-            setSaving(true);
-            await noteService.delete(note.id);
-            toast.success('Note deleted');
-            onDeleted();
-        } catch (error) {
-            console.error('Delete failed', error);
-            toast.error('Failed to delete note');
-        } finally {
-            setSaving(false);
-        }
+        // Non-blocking confirmation via toast — safe on all browsers including iOS Safari
+        toast((t) => (
+            <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Delete this note permanently?</span>
+                <div className="flex gap-2">
+                    <button
+                        className="px-3 py-1 text-xs rounded-lg bg-red-500 text-white font-semibold"
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                setSaving(true);
+                                await noteService.delete(note.id);
+                                toast.success('Note deleted');
+                                onDeleted();
+                            } catch (error) {
+                                console.error('Delete failed', error);
+                                toast.error('Failed to delete note');
+                            } finally {
+                                setSaving(false);
+                            }
+                        }}
+                    >
+                        Delete
+                    </button>
+                    <button
+                        className="px-3 py-1 text-xs rounded-lg bg-gray-600 text-white"
+                        onClick={() => toast.dismiss(t.id)}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        ), { duration: 5000 });
     };
 
     const handleCopy = () => {
@@ -471,10 +491,13 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
 
             {/* ── Title ── */}
             <input
+                id="note-title"
+                name="title"
                 type="text"
                 className="px-6 pt-5 pb-2 text-2xl font-bold text-white bg-transparent
                            focus:outline-none border-none"
                 placeholder="Untitled Note"
+                autoComplete="off"
                 value={title}
                 onChange={e => { setTitle(e.target.value); setDirty(true); }}
             />
@@ -486,6 +509,8 @@ export default function NoteEditor({ note, onUpdated, onDeleted }) {
                     <div className={`relative ${mode === 'split' ? 'w-1/2 border-r border-white/5' : 'w-full'} flex flex-col`}>
                         <textarea
                             ref={textareaRef}
+                            id="note-content"
+                            name="content"
                             className="flex-1 px-6 pb-6 pt-2 text-gray-300 bg-transparent focus:outline-none
                                        resize-none leading-relaxed text-sm font-mono custom-scrollbar"
                             placeholder="Start writing... (type / for commands)"

@@ -228,11 +228,14 @@ export default function Notes() {
                     <div className="relative mb-3">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                         <input
+                            id="notes-search"
+                            name="search"
                             type="text"
                             placeholder="Search notes..."
                             className="w-full pl-10 pr-10 py-2.5 bg-[#1a1f2e] border border-white/10
                                        rounded-xl text-white text-sm placeholder-gray-500
                                        focus:outline-none focus:border-purple-500/50 transition"
+                            autoComplete="off"
                             value={searchQuery}
                             onChange={e => { setSearchQuery(e.target.value); setActiveTag(null); }}
                         />

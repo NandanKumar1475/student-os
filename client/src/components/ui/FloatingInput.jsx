@@ -6,16 +6,24 @@ const FloatingInput = ({
   className = '',
   inputClassName = '',
   type = 'text',
+  id,
+  name,
   ...props
 }) => {
   const hasValue = Array.isArray(value) ? value.length > 0 : Boolean(value);
+  // Auto-generate a stable id from the label so the browser can link the
+  // <label> wrapper to the <input> and allow autofill without warnings.
+  const resolvedId = id || (label ? `floating-input-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+  const resolvedName = name || resolvedId;
 
   return (
-    <label className={`group relative block ${className}`}>
+    <label htmlFor={resolvedId} className={`group relative block ${className}`}>
       {Icon ? (
         <Icon className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-500 transition group-focus-within:text-indigo-300" />
       ) : null}
       <input
+        id={resolvedId}
+        name={resolvedName}
         type={type}
         value={value}
         onChange={onChange}

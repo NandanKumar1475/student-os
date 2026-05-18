@@ -71,10 +71,13 @@ export default function TagInput({ tags = [], onChange }) {
                     <Tag size={12} className="text-gray-600" />
                     <input
                         ref={inputRef}
+                        id="note-tag-input"
+                        name="tag"
                         type="text"
                         placeholder={tags.length === 0 ? "Add tags..." : ""}
                         className="bg-transparent text-xs text-gray-400 w-24 focus:outline-none
                                    placeholder-gray-600 focus:w-32 transition-all"
+                        autoComplete="off"
                         value={input}
                         onChange={e => { setInput(e.target.value); setShowSuggestions(true); }}
                         onFocus={() => setShowSuggestions(true)}
