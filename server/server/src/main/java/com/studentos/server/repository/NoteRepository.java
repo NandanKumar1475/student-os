@@ -3,6 +3,7 @@ package com.studentos.server.repository;
 // server/src/main/java/com/studentos/server/repository/NoteRepository.java
 
 import com.studentos.server.entity.Note;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,14 +14,17 @@ import java.util.List;
 @Repository
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
+    @EntityGraph(attributePaths = "tags")
     List<Note> findByUserIdOrderByPinnedDescUpdatedAtDesc(Long userId);
 
+    @EntityGraph(attributePaths = "tags")
     @Query("SELECT n FROM Note n WHERE n.user.id = :userId AND " +
             "(LOWER(n.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(n.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
             "ORDER BY n.pinned DESC, n.updatedAt DESC")
     List<Note> searchNotes(@Param("userId") Long userId, @Param("query") String query);
 
+    @EntityGraph(attributePaths = "tags")
     @Query("SELECT n FROM Note n JOIN n.tags t WHERE n.user.id = :userId AND t = :tag " +
             "ORDER BY n.pinned DESC, n.updatedAt DESC")
     List<Note> findByUserIdAndTag(@Param("userId") Long userId, @Param("tag") String tag);
